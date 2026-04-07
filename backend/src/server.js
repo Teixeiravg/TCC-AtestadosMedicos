@@ -9,8 +9,15 @@ app.use(cors())
 app.use(express.json())
 
 const swaggerDocument = YAML.load('../docs/swagger.yaml')
+const authRoutes = require('./modules/auth/routes')
+const adminRoutes = require('./modules/admin/routes')
+const certificatesRoutes = require('./modules/certificates/certificates.routes')
 
 app.use('/docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument))
+
+app.use('/auth', authRoutes)
+app.use('/admin', adminRoutes)
+app.use('/certificates', certificatesRoutes)
 
 app.get('/health', (req, res) => {
   res.json({ status: 'ok', message: 'API de Atestados Médicos rodando.' })
