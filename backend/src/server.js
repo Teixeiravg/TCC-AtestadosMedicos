@@ -8,7 +8,7 @@ const app = express()
 app.use(cors())
 app.use(express.json())
 
-const swaggerDocument = YAML.load('../docs/swagger.yaml')
+const swaggerDocument = YAML.load('./docs/swagger.yaml')
 const authRoutes = require('./modules/auth/routes')
 const adminRoutes = require('./modules/admin/routes')
 const certificatesRoutes = require('./modules/certificates/certificates.routes')
