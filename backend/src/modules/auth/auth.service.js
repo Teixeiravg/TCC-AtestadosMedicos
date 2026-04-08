@@ -12,6 +12,7 @@ Devolve o usuário criado para quem chamou a função — que vai ser o controll
 
 const bcryptjs = require('bcryptjs');
 const prisma = require('../../shared/prisma');
+const jwt = require('jsonwebtoken');
 
 // Cria um novo usuário no banco com a senha criptografada
 async function createUser(name, email, password, role) {
@@ -35,8 +36,39 @@ async function createUser(name, email, password, role) {
     return user;
 }
 
-module.exports = { createUser };
+// Verifica email e senha, retorna token JWT se válido
+async function loginUser(email, password) {
 
+    // Busca o usuário pelo email — se não existir, nega o acesso
+    // Nunca dizer se foi o email ou a senha que errou — isso é uma boa prática de segurança
+    const user = await prisma.user.findUnique({
+        where: { email }
+    });
+
+    if (!user) {
+        throw new Error('Credenciais inválidas');
+    }
+
+    // Compara a senha digitada com o hash salvo no banco
+    // bcryptjs faz isso internamente — você nunca descriptografa, só compara
+    const senhaCorreta = await bcryptjs.compare(password, user.passwordHash);
+
+    if (!senhaCorreta) {
+        throw new Error('Credenciais inválidas');
+    }
+
+    // Gera o token JWT com id e role do usuário
+    // O token expira em 8 horas — suficiente para um dia de trabalho
+    const token = jwt.sign(
+        { id: user.id, role: user.role },
+        process.env.JWT_SECRET,
+        { expiresIn: '8h' }
+    );
+
+    return { token, role: user.role };
+}
+
+module.exports = { createUser, loginUser };
 /*
 
 

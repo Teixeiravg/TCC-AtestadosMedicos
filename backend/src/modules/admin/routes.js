@@ -1,11 +1,10 @@
 const express = require('express');
 const router = express.Router()
 
-const fakeAuth = require('../../shared/middlewares/fakeAuth');
-const isAdmin = require('../../shared/middlewares/isAdmin');
+const {authenticate, authorizeAdmin} = require('../auth/auth.middleware');
 
-router.use(fakeAuth);
-router.use(isAdmin);
+router.use(authenticate);
+router.use(authorizeAdmin);
 
 router.get('/certificates', (req, res) => {
     res.json({message: "Lista de certificados (admin)"})

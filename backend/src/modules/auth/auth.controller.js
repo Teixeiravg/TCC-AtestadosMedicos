@@ -1,4 +1,4 @@
-const { createUser } = require('./auth.service');
+const { createUser, loginUser } = require('./auth.service');
 
 async function register(req, res) {
     try {
@@ -28,6 +28,8 @@ async function register(req, res) {
     } catch (error) {
         // P2002 é o código do Prisma para violação de campo único (email duplicado)
         // Retorna 409 (Conflict) em vez de 500 para o frontend saber o que aconteceu
+        console.log('ERRO NO REGISTER:', error);
+        
         if (error.code === 'P2002') {
             return res.status(409).json({ error: 'Email já cadastrado' });
         }
@@ -38,4 +40,32 @@ async function register(req, res) {
     }
 }
 
-module.exports = { register };
+async function login(req, res) {
+    try {
+        // Extrai email e senha do corpo da requisição
+        const { email, password } = req.body;
+
+        // Validação básica — os dois campos são obrigatórios
+        if (!email || !password) {
+            return res.status(400).json({ error: 'Email e senha são obrigatórios' });
+        }
+
+        // Chama o service que verifica as credenciais e gera o token
+        // Se as credenciais forem inválidas, o service lança um erro que cai no catch
+        const { token, role } = await loginUser(email, password);
+
+        // Retorna o token e o role para o frontend salvar e usar nas próximas requisições
+        return res.status(200).json({ token, role });
+
+    } catch (error) {
+        // Credenciais inválidas — retorna 401 (Unauthorized)
+        // Mensagem genérica propositalmente — não revela se foi email ou senha que errou
+        if (error.message === 'Credenciais inválidas') {
+            return res.status(401).json({ error: 'Email ou senha incorretos' });
+        }
+
+        return res.status(500).json({ error: 'Erro interno do servidor' });
+    }
+}
+
+module.exports = { register, login };
