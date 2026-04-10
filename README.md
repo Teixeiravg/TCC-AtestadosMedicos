@@ -246,115 +246,200 @@ Avisa Dev 1 no grupo para ele revisar e fazer o merge
 
 ---
 
-FASE 0.2 — Guia de Ambiente: GitHub Codespaces
-Projeto: Ateste+ — Sistema de Gestão de Atestados Médicos
-Responsável pela configuração: Dev 1
-Status: Ambiente configurado e funcional
+# FASE 0.2 — Guia de Ambiente: GitHub Codespaces
 
-O que é o Codespaces e por que estamos usando
+**Projeto:** Ateste+ — Sistema de Gestão de Atestados Médicos  
+**Responsável pela configuração:** Dev 1  
+**Status:** Ambiente configurado e funcional
+
+---
+
+## O que é o Codespaces e por que estamos usando
+
 O GitHub Codespaces é um ambiente de desenvolvimento que roda na nuvem, acessível pelo navegador. Em vez de instalar Node.js, MySQL e outras ferramentas na máquina da sala de aula (onde não temos permissão de administrador), cada membro da equipe abre o projeto diretamente no navegador e já tem tudo funcionando.
+
 O ambiente é pessoal: cada um tem o seu próprio Codespace, com o próprio banco de dados e servidor rodando de forma independente. As alterações no código são sincronizadas via Git normalmente.
 
-Pré-requisitos
+---
 
-Conta no GitHub (todos já têm)
-Acesso à internet fora da rede da instituição (usar hotspot do celular na sala de aula — o firewall institucional bloqueia o Codespaces)
-Fork do repositório principal já feito (ver Fase 0.1)
+## Pré-requisitos
 
+- Conta no GitHub (todos já têm)
+- Acesso à internet **fora da rede da instituição** (usar hotspot do celular na sala de aula — o firewall institucional bloqueia o Codespaces)
+- Fork do repositório principal já feito (ver Fase 0.1)
 
-Abrindo o Codespace pela primeira vez
+---
 
-Acesse o seu fork no GitHub: https://github.com/SEU_USUARIO/TCC-AtestadosMedicos
-Clique no botão verde Code
-Clique na aba Codespaces
-Clique em Create codespace on main
-Na tela de configuração, mantenha:
+## Abrindo o Codespace pela primeira vez
 
-Branch: main
-Machine type: 2-core (não usar 4-core — consome o dobro das horas gratuitas)
-
-
-Clique em Create codespace
+1. Acesse o seu fork no GitHub: `https://github.com/SEU_USUARIO/TCC-AtestadosMedicos`
+2. Clique no botão verde **Code**
+3. Clique na aba **Codespaces**
+4. Clique em **Create codespace on main**
+5. Na tela de configuração, mantenha:
+   - Branch: `main`
+   - Machine type: **2-core** (não usar 4-core — consome o dobro das horas gratuitas)
+6. Clique em **Create codespace**
 
 O ambiente vai levar alguns minutos para subir na primeira vez.
 
-Configuração manual após abrir o Codespace
-O script de setup automático pode não rodar dependendo do cache do container. Se o ambiente subir sem MySQL ou Node, execute os comandos abaixo no terminal integrado (Ctrl + ').
+---
+
+## Configuração manual após abrir o Codespace
+
+O script de setup automático pode não rodar dependendo do cache do container. Se o ambiente subir sem MySQL ou Node, execute os comandos abaixo no terminal integrado (`Ctrl + '`).
+
 Execute um bloco por vez e aguarde terminar antes de rodar o próximo.
-Passo 1 — Instalar dependências do sistema
-bashsudo apk add --no-cache mysql mysql-client nodejs npm openssl openssl-dev
-Passo 2 — Iniciar o banco de dados
-bashsudo mysql_install_db --user=mysql --datadir=/var/lib/mysql
+
+### Passo 1 — Instalar dependências do sistema
+
+```bash
+sudo apk add --no-cache mysql mysql-client nodejs npm openssl openssl-dev
+```
+
+### Passo 2 — Iniciar o banco de dados
+
+```bash
+sudo mysql_install_db --user=mysql --datadir=/var/lib/mysql
 sudo mysqld_safe --datadir=/var/lib/mysql &
 sleep 3
-Passo 3 — Criar o banco de dados
-bashsudo mysql -u root -e "CREATE DATABASE IF NOT EXISTS atestados_db CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;"
-Passo 4 — Configurar o arquivo .env do backend
-bashecho 'DATABASE_URL="mysql://root@localhost/atestados_db?socket=/var/run/mysqld/mysqld.sock"' > /workspaces/TCC-AtestadosMedicos/backend/.env
+```
+
+### Passo 3 — Criar o banco de dados
+
+```bash
+sudo mysql -u root -e "CREATE DATABASE IF NOT EXISTS atestados_db CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;"
+```
+
+### Passo 4 — Configurar o arquivo .env do backend
+
+```bash
+echo 'DATABASE_URL="mysql://root@localhost/atestados_db?socket=/var/run/mysqld/mysqld.sock"' > /workspaces/TCC-AtestadosMedicos/backend/.env
 echo 'JWT_SECRET="codespaces_secret_dev_only"' >> /workspaces/TCC-AtestadosMedicos/backend/.env
 echo 'PORT=3001' >> /workspaces/TCC-AtestadosMedicos/backend/.env
-Passo 5 — Instalar dependências do backend
-bashcd /workspaces/TCC-AtestadosMedicos/backend
+```
+
+### Passo 5 — Instalar dependências do backend
+
+```bash
+cd /workspaces/TCC-AtestadosMedicos/backend
 sudo npm install
 sudo npm install multer
-Passo 6 — Gerar o Prisma Client
-bashsudo npx prisma generate
-Passo 7 — Aplicar as migrations
-bashsudo npx prisma migrate deploy
-Passo 8 — Subir o backend
-bashsudo node src/server.js
-Se aparecer Servidor rodando na porta 3001, o backend está funcionando.
-Passo 9 — Subir o frontend (em outro terminal)
-Abre um segundo terminal com o botão + no painel de terminais e rode:
-bashcd /workspaces/TCC-AtestadosMedicos/frontend
+```
+
+### Passo 6 — Gerar o Prisma Client
+
+```bash
+sudo npx prisma generate
+```
+
+### Passo 7 — Aplicar as migrations
+
+```bash
+sudo npx prisma migrate deploy
+```
+
+### Passo 8 — Subir o backend
+
+```bash
+sudo node src/server.js
+```
+
+Se aparecer `Servidor rodando na porta 3001`, o backend está funcionando.
+
+### Passo 9 — Subir o frontend (em outro terminal)
+
+Abre um segundo terminal com o botão `+` no painel de terminais e rode:
+
+```bash
+cd /workspaces/TCC-AtestadosMedicos/frontend
 sudo npm install
 sudo npm run dev
+```
 
-Acessando o sistema rodando
-Quando o backend e o frontend estiverem rodando, o Codespaces vai mostrar uma notificação com o link para acessar as portas. Você também pode acessar pela aba Ports no painel inferior do VS Code:
-ServiçoPortaO que éFrontend3000Interface Next.jsBackend3001API ExpressBanco3306MariaDB (só acessível internamente)
+---
+
+## Acessando o sistema rodando
+
+Quando o backend e o frontend estiverem rodando, o Codespaces vai mostrar uma notificação com o link para acessar as portas. Você também pode acessar pela aba **Ports** no painel inferior do VS Code:
+
+| Serviço | Porta | O que é |
+|---------|-------|---------|
+| Frontend | 3000 | Interface Next.js |
+| Backend | 3001 | API Express |
+| Banco | 3306 | MariaDB (só acessível internamente) |
+
 Clique no ícone de globo ao lado da porta para abrir no navegador.
 
-Importante: o banco não persiste entre sessões
-Toda vez que o Codespace for fechado e reaberto, o MariaDB precisa ser iniciado novamente. O banco de dados e os dados inseridos não são perdidos (ficam no volume do container), mas o processo precisa ser religado manualmente.
+---
+
+## Importante: o banco não persiste entre sessões
+
+Toda vez que o Codespace for fechado e reaberto, o MariaDB precisa ser iniciado novamente. O banco de dados e os dados inseridos **não são perdidos** (ficam no volume do container), mas o processo precisa ser religado manualmente.
+
 Ao retomar o trabalho em uma nova sessão, rode sempre:
-bashsudo mysqld_safe --datadir=/var/lib/mysql &
+
+```bash
+sudo mysqld_safe --datadir=/var/lib/mysql &
 sleep 3
+```
+
 Antes de subir o backend.
 
-Fluxo de trabalho diário
+---
 
-Abrir o Codespace no navegador
-Religar o banco (comando acima)
-Subir o backend: cd backend && sudo node src/server.js
-Abrir segundo terminal, subir o frontend: cd frontend && sudo npm run dev
-Trabalhar normalmente
-Ao final, fazer commit e push na sua branch
-Fechar o Codespace (ele para de consumir horas automaticamente após inatividade)
+## Fluxo de trabalho diário
 
+1. Abrir o Codespace no navegador
+2. Religar o banco (comando acima)
+3. Subir o backend: `cd backend && sudo node src/server.js`
+4. Abrir segundo terminal, subir o frontend: `cd frontend && sudo npm run dev`
+5. Trabalhar normalmente
+6. Ao final, fazer commit e push na sua branch
+7. Fechar o Codespace (ele para de consumir horas automaticamente após inatividade)
 
-Fazendo commit e push
+---
+
+## Fazendo commit e push
+
 O fluxo de Git não muda em relação ao que já fazíamos localmente:
-bashgit add .
+
+```bash
+git add .
 git commit -m "descrição do que foi feito"
 git push origin nome-da-sua-branch
+```
+
 Depois abrir Pull Request no GitHub para o Dev 1 revisar e fazer merge.
 
-Limites do plano gratuito
-PlanoHoras/mês (2-core)ArmazenamentoGitHub Free60 horas15 GB
-Para não desperdiçar horas, feche o Codespace quando não estiver usando: Code → Codespaces → Stop codespace.
+---
 
-Dúvidas frequentes
-O Codespace de um membro afeta o do outro?
+## Limites do plano gratuito
+
+| Plano | Horas/mês (2-core) | Armazenamento |
+|-------|-------------------|---------------|
+| GitHub Free | 60 horas | 15 GB |
+
+Para não desperdiçar horas, feche o Codespace quando não estiver usando: **Code → Codespaces → Stop codespace**.
+
+---
+
+## Dúvidas frequentes
+
+**O Codespace de um membro afeta o do outro?**  
 Não. Cada um tem o seu próprio ambiente isolado. Vocês compartilham só o código via Git.
-Posso usar o Codespace no celular?
+
+**Posso usar o Codespace no celular?**  
 Sim, pelo navegador do celular ou pelo aplicativo GitHub. Mas o desenvolvimento fica mais confortável no computador.
-Perdi meu trabalho ao fechar o Codespace?
+
+**Perdi meu trabalho ao fechar o Codespace?**  
 Só perde se não tiver feito commit. O ambiente em si fica salvo por até 30 dias de inatividade. Sempre faça commit antes de fechar.
-O banco de dados zerou?
+
+**O banco de dados zerou?**  
 O banco não zera, mas o processo do MariaDB precisa ser reiniciado manualmente a cada sessão (ver seção "Fluxo de trabalho diário").
-Apareceu erro de permissão no npm?
-Use sudo npm install em vez de npm install.
+
+**Apareceu erro de permissão no npm?**  
+Use `sudo npm install` em vez de `npm install`.
 
 ### DIA 1 — Estrutura e Primeiras Telas
 
