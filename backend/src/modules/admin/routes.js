@@ -7,7 +7,7 @@ const {authenticate, authorizeAdmin} = require('../auth/auth.middleware');
 router.use(authenticate);
 router.use(authorizeAdmin);
 
-router.get('/certificates', adminController.listarAtestados);
+router.get('/certificates', authenticate, authorizeAdmin, adminController.listarAtestados);
 
 router.patch('/certificates/:id/approve', (req, res) => {
     res.json({message: `Certificado aprovado`})
