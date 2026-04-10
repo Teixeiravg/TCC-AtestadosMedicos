@@ -25,6 +25,7 @@
     "@tailwindcss/postcss": "^4",
     "eslint": "^9",
     "eslint-config-next": "16.2.2",
+    "lightningcss-win32-x64-msvc": "^1.32.0",
     "tailwindcss": "^4"
   }
 }
