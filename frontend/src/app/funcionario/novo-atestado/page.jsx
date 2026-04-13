@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
+import NavBar from '@/components/NavBar'; // <-- Importando o NavBar
 import api from '@/services/api';
 // Se você estiver usando a instância do axios configurada no seu repositório:
 // import api from '@/services/api'; 
@@ -45,11 +46,13 @@ export default function EnviarAtestado() {
 
     try {
       const data = new FormData();
-      data.append('file', file);
-      data.append('startDate', formData.dataInicio);
-      data.append('crmNumber', formData.crm);
+        data.append('file', file);
+        data.append('startDate', formData.dataInicio);
+        data.append('crmNumber', formData.crm);
+        data.append('motivo', formData.motivo);
+        data.append('nomeMedico', formData.nomeMedico);
+        data.append('observacoes', formData.observacoes);
 
-      // Calcula durationDays a partir das datas
       const inicio = new Date(formData.dataInicio);
       const termino = new Date(formData.dataTermino);
       const dias = Math.ceil((termino - inicio) / (1000 * 60 * 60 * 24));
@@ -60,7 +63,7 @@ export default function EnviarAtestado() {
       });
 
       alert('Atestado enviado com sucesso!');
-      router.push('/funcionario/dashboard');
+      router.push('/funcionario/meus-atestados'); 
 
     } catch (error) {
       console.error("Erro no envio:", error);
@@ -71,24 +74,13 @@ export default function EnviarAtestado() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 text-gray-800 font-sans">
-      {/* Header mantido estático para visualização (idealmente seria um componente <NavBar /> separado) */}
-      <header className="bg-white border-b border-gray-200 flex items-center justify-between px-10 py-4">
-        <div className="text-xl font-bold text-[#00a8ac] tracking-wide">ATESTE+</div>
-        <nav className="hidden md:flex gap-8 text-sm font-medium text-gray-600">
-          <Link href="/funcionario/dashboard" className="hover:text-[#00a8ac] transition">Início</Link>
-          <Link href="/funcionario/novo-atestado" className="text-[#00a8ac]">Enviar Atestado</Link>
-          <Link href="/funcionario/meus-atestados" className="hover:text-[#00a8ac] transition">Meus Atestados</Link>
-        </nav>
-        <div className="w-9 h-9 bg-gray-400 rounded-full flex items-center justify-center text-white">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
-            <circle cx="12" cy="7" r="4"></circle>
-          </svg>
-        </div>
-      </header>
+    <div className="min-h-screen bg-gray-50 text-gray-800 font-sans flex flex-col">
+      
+      {/* Componente NavBar inserido no lugar do header solto */}
+      <NavBar />
 
-      <main className="max-w-[900px] mx-auto px-5 py-10 bg-white min-h-[calc(100vh-73px)] shadow-sm">
+      {/* Alteração principal feita aqui: flex-1 para preencher a tela, mantendo as margens originais */}
+      <main className="flex-1 w-full px-10 py-10 bg-white">
         <Link href="/funcionario/dashboard" className="text-sm text-gray-500 hover:underline mb-6 inline-block">
           &larr; Voltar
         </Link>
@@ -97,7 +89,6 @@ export default function EnviarAtestado() {
         <p className="text-sm text-gray-500 mb-8">Preencha os dados do documento médico e anexe o arquivo.</p>
 
         <form onSubmit={handleSubmit} className="space-y-6">
-          {/* Linha 1: Datas */}
           <div className="flex flex-col md:flex-row gap-5">
             <div className="flex-1 flex flex-col">
               <label className="text-[13px] font-medium text-gray-700 mb-2">Data de início<span className="text-red-500">*</span></label>
@@ -123,7 +114,6 @@ export default function EnviarAtestado() {
             </div>
           </div>
 
-          {/* Linha 2: Motivo */}
           <div className="flex flex-col">
             <label className="text-[13px] font-medium text-gray-700 mb-2">Motivo<span className="text-red-500">*</span></label>
             <select
@@ -140,7 +130,6 @@ export default function EnviarAtestado() {
             </select>
           </div>
 
-          {/* Linha 3: Médico e CRM */}
           <div className="flex flex-col md:flex-row gap-5">
             <div className="flex-1 flex flex-col">
               <label className="text-[13px] font-medium text-gray-700 mb-2">Nome do médico</label>
@@ -166,7 +155,6 @@ export default function EnviarAtestado() {
             </div>
           </div>
 
-          {/* Linha 4: Observações */}
           <div className="flex flex-col">
             <label className="text-[13px] font-medium text-gray-700 mb-2">Observações</label>
             <textarea
@@ -178,7 +166,6 @@ export default function EnviarAtestado() {
             ></textarea>
           </div>
 
-          {/* Linha 5: Arquivo */}
           <div className="flex flex-col">
             <label className="text-[13px] font-medium text-gray-700 mb-2">Arquivo do atestado<span className="text-red-500">*</span></label>
             <div className="relative flex items-center border border-gray-300 rounded-md p-3 bg-white focus-within:border-[#00a8ac] focus-within:ring-1 focus-within:ring-[#00a8ac] transition">
