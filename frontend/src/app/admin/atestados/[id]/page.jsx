@@ -19,11 +19,8 @@ export default function DetalhesAtestado({ params }) {
     async function fetchDetalhes() {
       try {
         setIsLoading(true);
-        const response = await api.get(`/admin/certificates`);
-        const todos = response.data.data;
-        const encontrado = todos.find(cert => cert.id === id);
-        if (!encontrado) throw new Error('Não encontrado');
-        setAtestado(encontrado);
+        const response = await api.get(`/admin/certificates/${id}`);
+        setAtestado(response.data);
       } catch (err) {
         console.error("Erro ao buscar atestado:", err);
         setError("Não foi possível carregar os detalhes do atestado.");
