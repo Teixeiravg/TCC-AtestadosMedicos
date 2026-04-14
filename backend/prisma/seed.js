@@ -1,4 +1,5 @@
 const { PrismaClient } = require('../src/generated/prisma');
+const bcrypt = require('bcryptjs');
 
 const prisma = new PrismaClient();
 
@@ -15,12 +16,14 @@ async function main() {
     // =========================
     // USERS
     // =========================
+    const userPassword = await bcrypt.hash('123456', 10);
+    const adminPassword = await bcrypt.hash('adm123', 10);
 
     const admin = await prisma.user.create({
         data: {
         name: 'Admin Test',
         email: 'admin@test.com',
-        passwordHash: 'fake-hash-admin',
+        passwordHash: adminPassword,
         role: 'ADMIN',
         },
     });
@@ -29,7 +32,7 @@ async function main() {
         data: {
         name: 'João Silva',
         email: 'joao@test.com',
-        passwordHash: 'fake-hash-joao',
+        passwordHash: userPassword,
         role: 'EMPLOYEE',
         },
     });
@@ -38,7 +41,7 @@ async function main() {
         data: {
         name: 'Maria Souza',
         email: 'maria@test.com',
-        passwordHash: 'fake-hash-maria',
+        passwordHash: userPassword,
         role: 'EMPLOYEE',
         },
     });

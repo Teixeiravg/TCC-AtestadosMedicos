@@ -9,12 +9,10 @@ router.use(authorizeAdmin);
 
 router.get('/certificates', authenticate, authorizeAdmin, adminController.listarAtestados);
 
-router.patch('/certificates/:id/approve', (req, res) => {
-    res.json({message: `Certificado aprovado`})
-})
+router.get('/certificates/:id', authenticate, authorizeAdmin, adminController.buscarAtestadoPorId);
 
-router.patch('/certificates/:id/reject', (req, res) => {
-    res.json({message: `Certificado rejeitado`})
-})
+router.patch('/certificates/:id/approve', authenticate, authorizeAdmin, adminController.aprovarAtestado);
+
+router.patch('/certificates/:id/reject', authenticate, authorizeAdmin, adminController.rejeitarAtestado);
 
 module.exports = router;
