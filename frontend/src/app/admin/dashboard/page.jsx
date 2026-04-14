@@ -14,7 +14,7 @@ export default function AdminDashboard() {
       try {
         setIsLoading(true);
         const response = await api.get('/admin/certificates');
-        setAtestados(response.data);
+        setAtestados(response.data.data);
       } catch (err) {
         console.error("Erro ao buscar atestados:", err);
         setError("Não foi possível carregar as métricas do sistema.");
@@ -37,7 +37,7 @@ export default function AdminDashboard() {
       <NavBarAdmin />
 
       <main className="flex-1 w-full max-w-6xl mx-auto px-6 py-10 flex flex-col gap-8">
-        
+
         {/* Cabeçalho da Página */}
         <div>
           <h1 className="text-3xl font-bold text-gray-900">Visão Geral do Sistema</h1>
@@ -52,7 +52,7 @@ export default function AdminDashboard() {
 
         {/* --- GRID DOS 4 CARDS SUPERIORES --- */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-          
+
           {/* Card: Total */}
           <div className="bg-white border border-gray-200 rounded-xl p-6 shadow-sm flex flex-col justify-between">
             <span className="text-sm font-semibold text-gray-500">Total Recebidos</span>
@@ -93,7 +93,7 @@ export default function AdminDashboard() {
 
         {/* --- GRID DOS GRÁFICOS (Parte Inferior) --- */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-2">
-          
+
           {/* Seção: Fluxo Mensal */}
           <div className="bg-white border border-gray-200 rounded-xl p-6 shadow-sm flex flex-col min-h-[350px]">
             <h2 className="text-lg font-semibold text-gray-900 mb-6">Fluxo Mensal</h2>
