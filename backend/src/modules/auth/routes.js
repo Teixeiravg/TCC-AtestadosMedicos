@@ -1,23 +1,25 @@
 const express = require('express');
 const router = express.Router();
 
-// Importa as funções do controller
-const { register, login, registrarConsentimento, recuperarSenha } = require('./auth.controller');
+const { 
+    register, 
+    login, 
+    registrarConsentimento, 
+    recuperarSenha,
+    getMe,
+    updateMe
+} = require('./auth.controller');
 
-// Importa o middleware de autenticação
 const { authenticate } = require('./auth.middleware');
 
-// =======================================================
-// ROTAS PÚBLICAS (Não precisa de token)
-// =======================================================
+// Rotas públicas
 router.post('/register', register);
 router.post('/login', login);
 router.post('/recuperar-senha', recuperarSenha);
 
-// =======================================================
-// ROTAS PRIVADAS (Requer token no Header: Bearer <token>)
-// =======================================================
-// Colocamos o 'authenticate' antes de chamar o controller
+// Rotas privadas
 router.post('/consentimento', authenticate, registrarConsentimento);
+router.get('/me', authenticate, getMe);
+router.put('/me', authenticate, updateMe);
 
 module.exports = router;

@@ -109,11 +109,31 @@ async function atualizarSenhaSimples(email, novaSenha) {
     return true; // Retorna sucesso
 }
 
+async function buscarUsuarioPorId(id) {
+    const user = await prisma.user.findUnique({
+        where: { id },
+        select: {
+            id: true,
+            name: true,
+            email: true,
+            role: true,
+            createdAt: true
+        }
+    });
+
+    if (!user) {
+        throw new Error('Usuário não encontrado');
+    }
+
+    return user;
+}
+
 module.exports = { 
     createUser, 
     loginUser, 
     gravarConsentimento, 
-    atualizarSenhaSimples 
+    atualizarSenhaSimples,
+    buscarUsuarioPorId
 };
 
 /*

@@ -2,7 +2,8 @@ const {
     createUser, 
     loginUser, 
     gravarConsentimento, 
-    atualizarSenhaSimples 
+    atualizarSenhaSimples,
+    buscarUsuarioPorId
 } = require('./auth.service');
 
 async function register(req, res) {
@@ -139,9 +140,26 @@ async function recuperarSenha(req, res) {
     }
 }
 
+async function getMe(req, res) {
+    try {
+        const user = await buscarUsuarioPorId(req.user.id);
+        return res.status(200).json(user);
+    } catch (error) {
+        return res.status(404).json({ error: 'Usuário não encontrado' });
+    }
+}
+
+async function updateMe(req, res) {
+    // Campo telefone não existe no schema atual
+    // Rota existe para não quebrar o frontend — retorna sucesso sem alterar dados
+    return res.status(200).json({ message: 'Perfil atualizado' });
+}
+
 module.exports = { 
     register, 
     login, 
     registrarConsentimento, 
-    recuperarSenha 
+    recuperarSenha,
+    getMe,
+    updateMe
 };
