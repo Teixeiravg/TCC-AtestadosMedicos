@@ -52,7 +52,7 @@ export default function DetalhesAtestado({ params }) {
 
   const formatarData = (dataIso) => {
     if (!dataIso) return '';
-    return new Date(dataIso).toLocaleDateString('pt-BR');
+    return new Date(dataIso).toLocaleDateString('pt-BR', { timeZone: 'UTC' });
   };
 
   const calcularDias = (inicio, fim) => {
@@ -152,8 +152,8 @@ export default function DetalhesAtestado({ params }) {
                 rel="noreferrer"
                 className="mt-6 text-center text-sm text-white font-medium hover:underline bg-[#00a8ac] bg-opacity-10 py-2 rounded-md"
               >
-  Abrir arquivo em nova guia
-</a>
+              Abrir arquivo em nova guia
+              </a>
             )}
           </div>
 
