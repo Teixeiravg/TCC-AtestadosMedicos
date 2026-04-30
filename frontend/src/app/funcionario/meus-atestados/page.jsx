@@ -128,7 +128,7 @@ export default function MeusAtestados() {
                                                 href={atestado.fileUrl} 
                                                 target="_blank" 
                                                 rel="noreferrer"
-                                                className="flex items-center gap-2 text-sm text-[#00a8ac] font-medium hover:underline bg-[#00a8ac] bg-opacity-10 px-4 py-2 rounded-md transition-colors"
+                                                className="flex items-center gap-2 text-sm text-[#00a8ac] text-white font-medium hover:underline bg-[#00a8ac] bg-opacity-10 px-4 py-2 rounded-md transition-colors"
                                             >
                                                 <span>Visualizar Arquivo</span>
                                                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">

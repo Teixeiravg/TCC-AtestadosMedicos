@@ -35,7 +35,7 @@ export default function AdminAtestados() {
   // Funções utilitárias
   const formatarData = (dataIso) => {
     if (!dataIso) return '';
-    return new Date(dataIso).toLocaleDateString('pt-BR');
+    return new Date(dataIso).toLocaleDateString('pt-BR', { timeZone: 'UTC' });
   };
 
   const calcularDias = (inicio, fim) => {

@@ -3,36 +3,29 @@ const prisma = require('../../shared/prisma');
 // Função responsável por criar um atestado
 async function createCertificate(req, res) {
     try {
-        const { startDate, durationDays, crmNumber } = req.body;
+        // 1. Extraia o motivo e observacoes do req.body
+        const { startDate, durationDays, crmNumber, motivo, observacoes } = req.body;
 
-        // Verifica autenticação
         if (!req.user) {
-            return res.status(401).json({
-                error: 'Usuário não autenticado'
-            });
+            return res.status(401).json({ error: 'Usuário não autenticado' });
         }
 
-        // Verifica arquivo
         if (!req.file) {
-            return res.status(400).json({
-                error: 'Arquivo é obrigatório'
-            });
+            return res.status(400).json({ error: 'Arquivo é obrigatório' });
         }
 
-        // Validação dos campos
         if (!startDate || !durationDays || !crmNumber) {
-            return res.status(400).json({
-                error: 'Todos os campos são obrigatórios'
-            });
+            return res.status(400).json({ error: 'Todos os campos são obrigatórios' });
         }
 
-        // Salva no banco
+        // 2. Adicione motivo e observacoes no data do Prisma
         const certificate = await prisma.medicalCertificate.create({
             data: {
                 startDate: new Date(startDate),
                 endDate: new Date(new Date(startDate).getTime() + Number(durationDays) * 24 * 60 * 60 * 1000),
                 crmNumber,
-                // Ajuste importante para acesso via navegador/frontend
+                motivo,        // Salva o motivo
+                observacoes,   // Salva as observações
                 fileUrl: `/uploads/${req.file.filename}`,
                 userId: req.user.id,
                 status: 'PENDING'
@@ -46,10 +39,7 @@ async function createCertificate(req, res) {
 
     } catch (error) {
         console.log(error);
-
-        return res.status(500).json({
-            error: error.message
-        });
+        return res.status(500).json({ error: error.message });
     }
 }
 

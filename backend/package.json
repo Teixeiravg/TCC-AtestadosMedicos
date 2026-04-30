@@ -27,6 +27,9 @@
     "prisma": "^5.22.0"
   },
   "prisma": {
-  "seed": "node prisma/seed.js"
-}
+    "seed": "node prisma/seed.js"
+  },
+  "directories": {
+    "doc": "docs"
+  }
 }

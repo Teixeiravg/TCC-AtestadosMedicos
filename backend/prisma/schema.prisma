@@ -36,7 +36,10 @@ model MedicalCertificate {
   status CertificateStatus @default(PENDING)
   fileUrl String?
   crmNumber String
+  motivo String?      
+  observacoes String? @db.Text
   createdAt DateTime @default(now())
+  
 
   userId String
   user User @relation("UserCertificates", fields: [userId], references: [id])
