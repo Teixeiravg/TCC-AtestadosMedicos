@@ -31,9 +31,11 @@ export default function MeusAtestados() {
 
     // Função auxiliar para formatar a data
     const formatarData = (dataIso) => {
-        if (!dataIso) return '';
-        return new Date(dataIso).toLocaleDateString('pt-BR');
-    };
+    if (!dataIso) return '';
+    return new Date(dataIso).toLocaleDateString('pt-BR', {
+        timeZone: 'UTC'
+    });
+};
 
     // Função auxiliar para calcular a quantidade de dias
     const calcularDias = (inicio, fim) => {
