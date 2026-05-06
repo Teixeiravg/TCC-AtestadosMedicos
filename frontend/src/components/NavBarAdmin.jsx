@@ -61,7 +61,7 @@ export default function NavBarAdmin() {
         </Link>
       </div>
       <AccessibilityWidget />
-      <VLibras />
+      
     </header>
   );
 }

@@ -67,7 +67,7 @@ export default function DetalhesAtestado({ params }) {
 
   const mapa = {
     DOENCA: 'Doença',
-    EXAME: 'Exame médica',
+    EXAME: 'Exame médico',
     ACOMPANHAMENTO: 'Acompanhamento',
   };
 

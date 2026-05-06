@@ -50,7 +50,7 @@ export default function AdminAtestados() {
 
   const mapa = {
     DOENCA: 'Doença',
-    EXAME: 'Exame médica',
+    EXAME: 'Exame médico',
     ACOMPANHAMENTO: 'Acompanhamento',
   };
 
