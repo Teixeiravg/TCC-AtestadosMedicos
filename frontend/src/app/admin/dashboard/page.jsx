@@ -22,7 +22,7 @@ export default function AdminDashboard() {
         setAtestados(response.data.data);
       } catch (err) {
         console.error('Erro ao buscar atestados:', err);
-        setError('N\u00e3o foi poss\u00edvel carregar as m\u00e9tricas do sistema.');
+        setError('Não foi possível carregar as métricas do sistema.');
       } finally {
         setIsLoading(false);
       }
@@ -30,14 +30,12 @@ export default function AdminDashboard() {
     fetchTodosAtestados();
   }, []);
 
-  // Monta os gr\u00e1ficos ap\u00f3s os dados carregarem
   useEffect(() => {
     if (isLoading || atestados.length === 0) return;
 
     const meses = ['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'];
     const anoAtual = new Date().getFullYear();
 
-    // --- FLUXO MENSAL (barras) ---
     const contagemMensal = Array(12).fill(0);
     atestados.forEach((a) => {
       const d = new Date(a.createdAt || a.startDate);
@@ -46,7 +44,6 @@ export default function AdminDashboard() {
       }
     });
 
-    // --- MOTIVOS (doughnut) ---
     const aprovados = atestados.filter(a => a.status === 'APPROVED').length;
     const pendentes = atestados.filter(a => a.status === 'PENDING').length;
     const recusados = atestados.filter(a => a.status === 'REJECTED').length;
@@ -54,11 +51,9 @@ export default function AdminDashboard() {
     function buildCharts() {
       if (!window.Chart) return;
 
-      // Destr\u00f3i inst\u00e2ncias anteriores
       if (barChartInstance.current) barChartInstance.current.destroy();
       if (doughnutChartInstance.current) doughnutChartInstance.current.destroy();
 
-      // Gr\u00e1fico de Barras
       if (barChartRef.current) {
         barChartInstance.current = new window.Chart(barChartRef.current, {
           type: 'bar',
@@ -100,7 +95,6 @@ export default function AdminDashboard() {
         });
       }
 
-      // Gr\u00e1fico de Rosca
       if (doughnutChartRef.current) {
         doughnutChartInstance.current = new window.Chart(doughnutChartRef.current, {
           type: 'doughnut',
@@ -143,7 +137,6 @@ export default function AdminDashboard() {
     if (window.Chart) {
       buildCharts();
     } else {
-      // Carrega Chart.js dinamicamente se ainda n\u00e3o existir
       const script = document.createElement('script');
       script.src = 'https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js';
       script.onload = buildCharts;
@@ -161,12 +154,10 @@ export default function AdminDashboard() {
   const aprovados = atestados.filter(a => a.status === 'APPROVED').length;
   const recusados = atestados.filter(a => a.status === 'REJECTED').length;
 
-  // Taxa de aprova\u00e7\u00e3o
   const taxaAprovacao = totalRecebidos > 0
     ? Math.round((aprovados / totalRecebidos) * 100)
     : 0;
 
-  // M\u00e9dia de dias de afastamento
   const mediaDias = totalRecebidos > 0
     ? Math.round(
         atestados.reduce((acc, a) => {
@@ -184,15 +175,14 @@ export default function AdminDashboard() {
       <main className="flex-1 w-full px-6 md:px-10 py-10 flex flex-col gap-8">
 
         <div>
-          <h1 className="text-3xl font-bold text-gray-900">Vis\u00e3o Geral do Sistema</h1>
-          <p className="text-sm text-gray-500 mt-1">Acompanhe as m\u00e9tricas e o fluxo de atestados da empresa.</p>
+          <h1 className="text-3xl font-bold text-gray-900">Visão Geral do Sistema</h1>
+          <p className="text-sm text-gray-500 mt-1">Acompanhe as métricas e o fluxo de atestados da empresa.</p>
         </div>
 
         {error && (
           <div className="bg-red-50 text-red-600 p-4 rounded-md border border-red-100 text-sm">{error}</div>
         )}
 
-        {/* CARDS SUPERIORES — 6 m\u00e9tricas */}
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
 
           <div className="bg-white border border-gray-200 rounded-xl p-5 shadow-sm flex flex-col justify-between">
@@ -204,7 +194,7 @@ export default function AdminDashboard() {
           <div className="bg-white border border-gray-200 rounded-xl p-5 shadow-sm flex flex-col justify-between">
             <span className="text-xs font-semibold text-gray-500 uppercase tracking-wide">Pendentes</span>
             <span className="text-4xl font-bold text-yellow-500 mt-3">{isLoading ? '—' : pendentes}</span>
-            <span className="text-xs text-yellow-600/70 mt-2 font-medium">Aguardando an\u00e1lise</span>
+            <span className="text-xs text-yellow-600/70 mt-2 font-medium">Aguardando análise</span>
           </div>
 
           <div className="bg-white border border-gray-200 rounded-xl p-5 shadow-sm flex flex-col justify-between">
@@ -216,31 +206,29 @@ export default function AdminDashboard() {
           <div className="bg-white border border-gray-200 rounded-xl p-5 shadow-sm flex flex-col justify-between">
             <span className="text-xs font-semibold text-gray-500 uppercase tracking-wide">Recusados</span>
             <span className="text-4xl font-bold text-red-500 mt-3">{isLoading ? '—' : recusados}</span>
-            <span className="text-xs text-red-600/70 mt-2 font-medium">Documentos inv\u00e1lidos</span>
+            <span className="text-xs text-red-600/70 mt-2 font-medium">Documentos inválidos</span>
           </div>
 
           <div className="bg-white border border-gray-200 rounded-xl p-5 shadow-sm flex flex-col justify-between">
-            <span className="text-xs font-semibold text-gray-500 uppercase tracking-wide">Taxa Aprova\u00e7\u00e3o</span>
+            <span className="text-xs font-semibold text-gray-500 uppercase tracking-wide">Taxa Aprovação</span>
             <span className="text-4xl font-bold text-[#00a8ac] mt-3">{isLoading ? '—' : `${taxaAprovacao}%`}</span>
             <span className="text-xs text-[#00a8ac]/70 mt-2 font-medium">Dos atestados recebidos</span>
           </div>
 
           <div className="bg-white border border-gray-200 rounded-xl p-5 shadow-sm flex flex-col justify-between">
-            <span className="text-xs font-semibold text-gray-500 uppercase tracking-wide">M\u00e9dia Afastamento</span>
+            <span className="text-xs font-semibold text-gray-500 uppercase tracking-wide">Média Afastamento</span>
             <span className="text-4xl font-bold text-gray-700 mt-3">{isLoading ? '—' : `${mediaDias}d`}</span>
             <span className="text-xs text-gray-400 mt-2">Por atestado</span>
           </div>
 
         </div>
 
-        {/* GR\u00c1FICOS */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-2">
 
-          {/* Fluxo Mensal */}
           <div className="bg-white border border-gray-200 rounded-xl p-6 shadow-sm flex flex-col">
             <div className="mb-4">
               <h2 className="text-lg font-semibold text-gray-900">Fluxo Mensal</h2>
-              <p className="text-xs text-gray-400 mt-0.5">Atestados recebidos por m\u00eas em {new Date().getFullYear()}</p>
+              <p className="text-xs text-gray-400 mt-0.5">Atestados recebidos por mês em {new Date().getFullYear()}</p>
             </div>
             <div className="relative flex-1 min-h-[260px]">
               {isLoading ? (
@@ -251,17 +239,16 @@ export default function AdminDashboard() {
             </div>
           </div>
 
-          {/* Distribui\u00e7\u00e3o por Status */}
           <div className="bg-white border border-gray-200 rounded-xl p-6 shadow-sm flex flex-col">
             <div className="mb-4">
-              <h2 className="text-lg font-semibold text-gray-900">Distribui\u00e7\u00e3o por Status</h2>
-              <p className="text-xs text-gray-400 mt-0.5">Propor\u00e7\u00e3o de aprovados, pendentes e recusados</p>
+              <h2 className="text-lg font-semibold text-gray-900">Distribuição por Status</h2>
+              <p className="text-xs text-gray-400 mt-0.5">Proporção de aprovados, pendentes e recusados</p>
             </div>
             <div className="relative flex-1 min-h-[260px]">
               {isLoading ? (
                 <div className="absolute inset-0 flex items-center justify-center text-sm text-gray-400">Carregando...</div>
               ) : totalRecebidos === 0 ? (
-                <div className="absolute inset-0 flex items-center justify-center text-sm text-gray-400">Nenhum dado dispon\u00edvel</div>
+                <div className="absolute inset-0 flex items-center justify-center text-sm text-gray-400">Nenhum dado disponível</div>
               ) : (
                 <canvas ref={doughnutChartRef} />
               )}
