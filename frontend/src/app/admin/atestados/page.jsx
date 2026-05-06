@@ -11,15 +11,14 @@ export default function AdminAtestados() {
   const [error, setError] = useState(null);
   const [filtraNome, setFiltraNome] = useState('');
 
-  // Estado para o Filtro do Dev 5 (Todos, Pendentes, Aprovados, Recusados)
   const [filtroAtual, setFiltroAtual] = useState('TODOS');
 
   useEffect(() => {
     async function fetchTodosAtestados() {
       try {
         setIsLoading(true);
-        // O backend (Módulo Dev 5) deve retornar a lista completa ou filtrada
-        const response = await api.get('/admin/certificates');
+        // limit=100 para não ser cortado pela paginação padrão (10)
+        const response = await api.get('/admin/certificates?limit=100');
         setAtestados(response.data.data);
       } catch (err) {
         console.error("Erro ao buscar atestados:", err);
@@ -32,7 +31,6 @@ export default function AdminAtestados() {
     fetchTodosAtestados();
   }, []);
 
-  // Funções utilitárias
   const formatarData = (dataIso) => {
     if (!dataIso) return '';
     return new Date(dataIso).toLocaleDateString('pt-BR', { timeZone: 'UTC' });
@@ -46,18 +44,15 @@ export default function AdminAtestados() {
   };
 
   const formatarMotivo = (motivo) => {
-  if (!motivo) return 'Motivo não especificado';
-
-  const mapa = {
-    DOENCA: 'Doença',
-    EXAME: 'Exame médica',
-    ACOMPANHAMENTO: 'Acompanhamento',
+    if (!motivo) return 'Motivo não especificado';
+    const mapa = {
+      DOENCA: 'Doença',
+      EXAME: 'Exame médica',
+      ACOMPANHAMENTO: 'Acompanhamento',
+    };
+    return mapa[motivo] || motivo;
   };
 
-  return mapa[motivo] || motivo;
-};
-
-  // Aplicação do Filtro no Frontend
   const atestadosFiltrados = atestados.filter(atestado => {
     const passaStatus = filtroAtual === 'TODOS' || atestado.status === filtroAtual;
     const nome = atestado.user?.name?.toLowerCase() || '';
@@ -65,7 +60,6 @@ export default function AdminAtestados() {
     return passaStatus && passaNome;
   });
 
-  // Cálculos para os Cards de Resumo
   const totalAtestados = atestados.length;
   const atestadosPendentes = atestados.filter(a => a.status === 'PENDING').length;
   const atestadosAnalisados = atestados.filter(a => a.status !== 'PENDING').length;
@@ -76,7 +70,6 @@ export default function AdminAtestados() {
 
       <main className="flex-1 w-full max-w-5xl mx-auto px-8 py-10 flex flex-col gap-6">
 
-        {/* --- CARD 1: Resumo do Administrador --- */}
         <div className="bg-white border border-gray-200 rounded-lg p-6 shadow-sm">
           <h1 className="text-3xl font-normal text-gray-900">Visão Geral do RH</h1>
           <p className="text-sm text-gray-500 mt-2 mb-6">Acompanhe e gerencie todos os atestados da empresa.</p>
@@ -112,7 +105,6 @@ export default function AdminAtestados() {
           </div>
         </div>
 
-        {/* --- CARD 2: Lista com Filtros --- */}
         <div className="bg-white border border-gray-200 rounded-lg p-6 shadow-sm">
 
           <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-4">
@@ -121,7 +113,6 @@ export default function AdminAtestados() {
               <p className="text-sm text-gray-500 mt-1">Selecione para avaliar ou ver detalhes.</p>
             </div>
 
-            {/* Sistema de Filtros (Requisito do TCC) */}
             <div className="flex bg-gray-100 p-1 rounded-md text-sm font-medium">
               <button
                 onClick={() => setFiltroAtual('TODOS')}
@@ -170,7 +161,6 @@ export default function AdminAtestados() {
           ) : (
             <div className="flex flex-col gap-2">
               {atestadosFiltrados.map((atestado) => {
-                // Configuração visual baseada no Enum do Prisma
                 const isApproved = atestado.status === 'APPROVED';
                 const isRejected = atestado.status === 'REJECTED';
 
@@ -179,7 +169,6 @@ export default function AdminAtestados() {
                 const statusLabel = isApproved ? 'Aprovado' : isRejected ? 'Recusado' : 'Pendente';
 
                 const nomeFuncionario = atestado.user?.name || 'Funcionário Desconhecido';
-                const motivoAtestado = atestado.motivo ? `Atestado - ${atestado.motivo}` : 'Atestado Médico';
 
                 return (
                   <Link
