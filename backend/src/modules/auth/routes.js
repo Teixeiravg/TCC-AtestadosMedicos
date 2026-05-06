@@ -7,7 +7,8 @@ const {
     registrarConsentimento, 
     recuperarSenha,
     getMe,
-    updateMe
+    updateMe,
+    deleteMe
 } = require('./auth.controller');
 
 const { authenticate } = require('./auth.middleware');
@@ -21,5 +22,6 @@ router.post('/recuperar-senha', recuperarSenha);
 router.post('/consentimento', authenticate, registrarConsentimento);
 router.get('/me', authenticate, getMe);
 router.put('/me', authenticate, updateMe);
+router.delete('/me', authenticate, deleteMe);
 
 module.exports = router;
