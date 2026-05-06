@@ -45,6 +45,18 @@ export default function AdminAtestados() {
     return Math.ceil(diferencaTempo / (1000 * 60 * 60 * 24));
   };
 
+  const formatarMotivo = (motivo) => {
+  if (!motivo) return 'Motivo não especificado';
+
+  const mapa = {
+    DOENCA: 'Doença',
+    EXAME: 'Exame médica',
+    ACOMPANHAMENTO: 'Acompanhamento',
+  };
+
+  return mapa[motivo] || motivo;
+};
+
   // Aplicação do Filtro no Frontend
   const atestadosFiltrados = atestados.filter(atestado => {
     const passaStatus = filtroAtual === 'TODOS' || atestado.status === filtroAtual;
@@ -182,7 +194,7 @@ export default function AdminAtestados() {
                           {nomeFuncionario}
                         </span>
                         <span className="text-xs text-gray-500">
-                          {motivoAtestado}
+                          Atestado - {formatarMotivo(atestado.motivo)}
                         </span>
                         <span className="text-[13px] text-gray-400 mt-1">
                           {formatarData(atestado.startDate)} até {formatarData(atestado.endDate)} ({calcularDias(atestado.startDate, atestado.endDate)} dias)

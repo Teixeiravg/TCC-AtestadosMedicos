@@ -62,6 +62,18 @@ export default function DetalhesAtestado({ params }) {
     return Math.ceil(diferencaTempo / (1000 * 60 * 60 * 24));
   };
 
+  const formatarMotivo = (motivo) => {
+  if (!motivo) return 'Motivo não especificado';
+
+  const mapa = {
+    DOENCA: 'Doença',
+    EXAME: 'Exame médica',
+    ACOMPANHAMENTO: 'Acompanhamento',
+  };
+
+  return mapa[motivo] || motivo;
+};
+
   if (isLoading) {
     return (
       <div className="min-h-screen bg-gray-50 flex flex-col">
@@ -204,7 +216,7 @@ export default function DetalhesAtestado({ params }) {
                 <div className="mt-4 flex flex-wrap gap-x-8 gap-y-4">
                   <div>
                     <span className="block text-xs text-gray-500 font-medium mb-1">Motivo</span>
-                    <span className="font-semibold text-gray-900">{atestado.motivo || 'Motivo não especificado'}</span>
+                    <span className="font-semibold text-gray-900">{formatarMotivo(atestado.motivo)}</span>
                   </div>
                   <div>
                     <span className="block text-xs text-gray-500 font-medium mb-1">Dias Afastado</span>

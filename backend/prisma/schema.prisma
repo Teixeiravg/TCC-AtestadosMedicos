@@ -36,7 +36,7 @@ model MedicalCertificate {
   status CertificateStatus @default(PENDING)
   fileUrl String?
   crmNumber String
-  motivo String?      
+  motivo Motivo?      
   observacoes String? @db.Text
   createdAt DateTime @default(now())
   
@@ -56,6 +56,12 @@ enum CertificateStatus {
   REJECTED
 }
 
+enum Motivo {
+  DOENCA
+  EXAME
+  ACOMPANHAMENTO
+}
+
 model AuditLog {
   id String @id @default(uuid())
   action String
@@ -65,7 +71,7 @@ model AuditLog {
   ipAddress String?
   timestamp DateTime @default(now())
 
-  certificatedId String
+  certificateId String
   certificate MedicalCertificate @relation(fields: [certificatedId], references: [id])
 
   actorId String
@@ -76,7 +82,7 @@ model ConsentAgreement {
   id String @id @default(uuid())
   consentVersion String
   acceptedAt DateTime @default(now())
-  ipAdress String?
+  ipAddress String?
   deviceFingerprint String?
 
   userId String
