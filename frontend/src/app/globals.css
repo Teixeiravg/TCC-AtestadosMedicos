@@ -128,3 +128,49 @@
     @apply font-sans;
   }
 }
+/* ALTO CONTRASTE */
+html.high-contrast body {
+  background: #000 !important;
+  color: #fff !important;
+}
+html.high-contrast nav,
+html.high-contrast header,
+html.high-contrast main,
+html.high-contrast footer,
+html.high-contrast div,
+html.high-contrast section,
+html.high-contrast aside {
+  background: #000 !important;
+  color: #fff !important;
+  border-color: #fff !important;
+}
+html.high-contrast a,
+html.high-contrast button {
+  color: #ffff00 !important;
+  border-color: #ffff00 !important;
+}
+html.high-contrast input,
+html.high-contrast textarea,
+html.high-contrast select {
+  background: #000 !important;
+  color: #fff !important;
+  border: 1px solid #fff !important;
+}
+
+/* ========================
+   VLIBRAS - Proteção de estilos
+======================== */
+/* VLIBRAS - Remove tentativa anterior */
+[vw] .vp-access-button {
+  display: flex !important;
+  position: fixed !important;
+  left: 20px !important;
+  right: auto !important;
+  bottom: 80px !important;
+  top: auto !important;
+  transform: none !important;
+  z-index: 99999 !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+  pointer-events: all !important;
+}

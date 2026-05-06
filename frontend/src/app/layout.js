@@ -14,9 +14,26 @@ export const metadata = {
 export default function RootLayout({ children }) {
   return (
     <html lang="pt-br">
+      <head>
+        <link rel="stylesheet" href="https://vlibras.gov.br/app/vlibras-plugin.css" />
+      </head>
       <body className={`${inter.variable} antialiased`}>
-        {children}
-      </body>
+
+  <div vw="" className="enabled">
+    <div vw-access-button="" className="active"></div>
+    <div vw-plugin-wrapper="">
+      <div className="vw-plugin-top-wrapper"></div>
+    </div>
+  </div>
+  <script src="https://vlibras.gov.br/app/vlibras-plugin.js" />
+  <script dangerouslySetInnerHTML={{
+    __html: `new window.VLibras.Widget('https://vlibras.gov.br/app');`
+  }} />
+
+  {children}
+</body>
+      
     </html>
   );
+  
 }

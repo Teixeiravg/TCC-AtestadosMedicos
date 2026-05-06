@@ -11,6 +11,7 @@ export default function Cadastro() {
         email: '',
         password: '',
         confirmPassword: '',
+        aceitouTermos: false,   // ✅ novo campo
     });
     const [error, setError] = useState('');
     const [isLoading, setIsLoading] = useState(false);
@@ -30,6 +31,12 @@ export default function Cadastro() {
 
         if (formData.password !== formData.confirmPassword) {
             setError('As senhas não coincidem.');
+            return;
+        }
+
+        // ✅ Validação dos termos
+        if (!formData.aceitouTermos) {
+            setError('Você precisa aceitar os termos de proteção de dados.');
             return;
         }
 
@@ -102,6 +109,27 @@ export default function Cadastro() {
                         onChange={handleChange}
                         className="border border-gray-300 rounded px-4 py-2 text-sm outline-none focus:border-[#1a6b6b]"
                     />
+
+                    {/* ✅ Checkbox de aceite dos termos */}
+                    <div className="flex items-start gap-2">
+                        <input
+                            type="checkbox"
+                            id="termos"
+                            checked={formData.aceitouTermos}
+                            onChange={(e) => setFormData(prev => ({ ...prev, aceitouTermos: e.target.checked }))}
+                            className="mt-0.5 cursor-pointer accent-[#1a9e9e]"
+                        />
+                        <label htmlFor="termos" className="text-xs text-gray-500 cursor-pointer">
+                            Li e concordo com a{' '}
+                            <a
+                                href="/termos"
+                                target="_blank"
+                                className="text-[#1a9e9e] hover:underline font-medium"
+                            >
+                                Política de Privacidade e Proteção de Dados (LGPD)
+                            </a>
+                        </label>
+                    </div>
 
                     {error && <p className="text-xs text-red-500">{error}</p>}
 
