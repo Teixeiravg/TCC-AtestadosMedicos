@@ -14,8 +14,6 @@ export default function MeusAtestados() {
         async function fetchMeusAtestados() {
             try {
                 setIsLoading(true);
-                // Chama a rota que aciona a função getUserCertificates do seu controller
-                // (Ajuste o caminho '/certificates' se a sua rota estiver mapeada diferente, ex: '/certificates/me')
                 const response = await api.get('/certificates');
                 setAtestados(response.data);
             } catch (err) {
@@ -29,28 +27,23 @@ export default function MeusAtestados() {
         fetchMeusAtestados();
     }, []);
 
-    // Função auxiliar para formatar a data
     const formatarData = (dataIso) => {
-    if (!dataIso) return '';
-    return new Date(dataIso).toLocaleDateString('pt-BR', {
-        timeZone: 'UTC'
-    });
-};
+        if (!dataIso) return '';
+        return new Date(dataIso).toLocaleDateString('pt-BR', { timeZone: 'UTC' });
+    };
 
-    // Função auxiliar para calcular a quantidade de dias
     const calcularDias = (inicio, fim) => {
         const data1 = new Date(inicio);
         const data2 = new Date(fim);
         const diferencaTempo = Math.abs(data2 - data1);
-        const diferencaDias = Math.ceil(diferencaTempo / (1000 * 60 * 60 * 24)); 
-        return diferencaDias;
+        return Math.ceil(diferencaTempo / (1000 * 60 * 60 * 24));
     };
 
     return (
         <div className="min-h-screen bg-gray-50 flex flex-col font-sans text-gray-800">
             <NavBar />
 
-            <main className="flex-1 w-full max-w-5xl mx-auto px-6 py-10">
+            <main className="flex-1 w-full px-6 md:px-10 py-10">
                 <div className="flex flex-col md:flex-row md:items-center justify-between mb-8 gap-4">
                     <div>
                         <h1 className="text-3xl font-bold text-gray-900">Meus Atestados</h1>
@@ -58,8 +51,8 @@ export default function MeusAtestados() {
                             Acompanhe o histórico e a situação dos documentos enviados ao RH.
                         </p>
                     </div>
-                    <Link 
-                        href="/funcionario/novo-atestado" 
+                    <Link
+                        href="/funcionario/novo-atestado"
                         className="bg-[#00a8ac] text-white px-5 py-2.5 rounded-md text-sm font-semibold hover:bg-[#008f92] transition-colors text-center"
                     >
                         + Enviar Novo Atestado
@@ -91,7 +84,7 @@ export default function MeusAtestados() {
                         <div className="divide-y divide-gray-100">
                             {atestados.map((atestado) => (
                                 <div key={atestado.id} className="p-6 flex flex-col md:flex-row md:items-center justify-between hover:bg-gray-50 transition-colors gap-4">
-                                    
+
                                     {/* Informações Principais */}
                                     <div className="flex items-start gap-4">
                                         <div className="mt-1">
@@ -103,11 +96,11 @@ export default function MeusAtestados() {
                                             <div className="font-semibold text-gray-900 text-base flex items-center gap-2">
                                                 Afastamento
                                                 <span className={`text-[10px] uppercase font-bold px-2.5 py-0.5 rounded-full tracking-wide
-                                                    ${atestado.status === 'APPROVED' ? 'bg-emerald-100 text-emerald-700' : 
-                                                      atestado.status === 'REJECTED' ? 'bg-red-100 text-red-700' : 
+                                                    ${atestado.status === 'APPROVED' ? 'bg-emerald-100 text-emerald-700' :
+                                                      atestado.status === 'REJECTED' ? 'bg-red-100 text-red-700' :
                                                       'bg-yellow-100 text-yellow-700'}`}
                                                 >
-                                                    {atestado.status === 'APPROVED' ? 'Aprovado' : 
+                                                    {atestado.status === 'APPROVED' ? 'Aprovado' :
                                                      atestado.status === 'REJECTED' ? 'Recusado' : 'Em Análise'}
                                                 </span>
                                             </div>
@@ -125,12 +118,11 @@ export default function MeusAtestados() {
                                     {/* Ações / Arquivo */}
                                     <div className="flex items-center md:justify-end border-t md:border-t-0 pt-4 md:pt-0 border-gray-100">
                                         {atestado.fileUrl ? (
-                                            <a 
-                                                // O backend salva o caminho do arquivo em atestado.fileUrl
-                                                href={atestado.fileUrl} 
-                                                target="_blank" 
+                                            <a
+                                                href={atestado.fileUrl}
+                                                target="_blank"
                                                 rel="noreferrer"
-                                                className="flex items-center gap-2 text-sm text-[#00a8ac] text-white font-medium hover:underline bg-[#00a8ac] bg-opacity-10 px-4 py-2 rounded-md transition-colors"
+                                                className="flex items-center gap-2 text-sm text-[#00a8ac] font-medium hover:underline bg-[#00a8ac] bg-opacity-10 px-4 py-2 rounded-md transition-colors"
                                             >
                                                 <span>Visualizar Arquivo</span>
                                                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
