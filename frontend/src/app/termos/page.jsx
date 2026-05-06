@@ -5,7 +5,7 @@ export default function Termos() {
   const router = useRouter();
 
   return (
-    <div className="min-h-screen bg-[#f0fafa] flex items-center justify-center px-4 py-12">
+    <div className="min-h-screen bg-[#f0fafa] flex items-center justify-center px-4 py-12 font-sans">
       <div className="bg-white rounded-2xl shadow-md max-w-2xl w-full p-8">
 
         <div className="text-center mb-6">
