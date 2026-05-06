@@ -106,6 +106,7 @@ export default function AdminDashboard() {
               borderColor: '#ffffff',
               borderWidth: 3,
               hoverOffset: 6,
+              pointStyle: 'circle',
             }],
           },
           options: {
@@ -120,7 +121,9 @@ export default function AdminDashboard() {
                   color: '#6b7280',
                   font: { size: 13 },
                   usePointStyle: true,
-                  pointStyleWidth: 10,
+                  pointStyle: 'circle',
+                  boxWidth: 10,
+                  boxHeight: 10,
                 },
               },
               tooltip: {
