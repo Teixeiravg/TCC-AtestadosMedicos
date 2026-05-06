@@ -18,7 +18,8 @@ export default function AdminDashboard() {
     async function fetchTodosAtestados() {
       try {
         setIsLoading(true);
-        const response = await api.get('/admin/certificates');
+        // limit=100 para buscar todos os atestados sem ser cortado pela paginação padrão (10)
+        const response = await api.get('/admin/certificates?limit=100');
         setAtestados(response.data.data);
       } catch (err) {
         console.error('Erro ao buscar atestados:', err);
