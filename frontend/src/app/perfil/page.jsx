@@ -10,14 +10,12 @@ export default function MeuPerfil() {
   const router = useRouter();
   const [userRole, setUserRole] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
-  const [isSaving, setIsSaving] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
 
   const [formData, setFormData] = useState({
     name: '',
-    email: '',
-    telefone: ''
+    email: ''
   });
 
   useEffect(() => {
@@ -28,20 +26,16 @@ export default function MeuPerfil() {
       try {
         setIsLoading(true);
         const response = await api.get('/auth/me');
-        setFormData(prev => ({
-          ...prev,
+        setFormData({
           name: response.data.name || '',
-          email: response.data.email || '',
-          telefone: response.data.telefone || ''
-        }));
+          email: response.data.email || ''
+        });
       } catch (err) {
         console.error("Erro ao buscar dados do perfil:", err);
-        setFormData(prev => ({
-          ...prev,
+        setFormData({
           name: 'Usuário do Sistema',
-          email: 'usuario@empresa.com',
-          telefone: ''
-        }));
+          email: 'usuario@empresa.com'
+        });
       } finally {
         setIsLoading(false);
       }
@@ -49,24 +43,6 @@ export default function MeuPerfil() {
 
     fetchUserData();
   }, []);
-
-  const handleInputChange = (e) => {
-    const { name, value } = e.target;
-    setFormData(prev => ({ ...prev, [name]: value }));
-  };
-
-  const handleSave = async (e) => {
-    e.preventDefault();
-    setIsSaving(true);
-    try {
-      await api.put('/auth/me', { telefone: formData.telefone });
-      alert("Telefone atualizado com sucesso!");
-    } catch (err) {
-      alert("Erro ao atualizar o perfil. Verifique a conexão com o servidor.");
-    } finally {
-      setIsSaving(false);
-    }
-  };
 
   const handleDeleteAccount = async () => {
     setIsDeleting(true);
@@ -99,7 +75,7 @@ export default function MeuPerfil() {
 
         <div className="mb-6">
           <h1 className="text-3xl font-bold text-gray-900">Configurações da Conta</h1>
-          <p className="text-sm text-gray-500 mt-1">Gerencie suas informações de contato no sistema.</p>
+          <p className="text-sm text-gray-500 mt-1">Visualize suas informações no sistema.</p>
         </div>
 
         <div className="bg-white border border-gray-200 rounded-xl shadow-sm overflow-hidden w-full">
@@ -124,72 +100,52 @@ export default function MeuPerfil() {
             </div>
           </div>
 
-          {/* CORPO DO FORMULÁRIO */}
-          <form onSubmit={handleSave} className="p-8 md:px-12 w-full">
+          {/* DADOS */}
+          <div className="p-8 md:px-12 w-full">
 
-            <div className="flex flex-col gap-6 w-full">
+            <div className="w-full text-left mb-6">
+              <h3 className="text-lg font-bold text-gray-900">Dados da Conta</h3>
+              <p className="text-sm text-gray-500 mt-1">Nome e e-mail são controlados pela empresa e não podem ser alterados.</p>
+            </div>
 
-              <div className="w-full text-left mb-2">
-                <h3 className="text-lg font-bold text-gray-900">Dados de Contato</h3>
-                <p className="text-sm text-gray-500 mt-1">Nome e e-mail são controlados pela empresa e não podem ser alterados. Atualize o seu telefone de contato caso necessário.</p>
-              </div>
+            <div className="w-full space-y-5">
 
-              <div className="w-full space-y-5">
-
-                {/* Nome Completo (Bloqueado) */}
-                <div className="flex flex-col w-full">
-                  <label className="text-[13px] font-semibold text-gray-700 mb-2">Nome Completo</label>
-                  <div className="relative flex items-center w-full">
-                    <input
-                      type="text"
-                      name="name"
-                      value={formData.name}
-                      disabled
-                      className="w-full p-3 pl-10 border border-gray-200 bg-gray-50 rounded-md text-sm text-gray-500 cursor-not-allowed outline-none select-none"
-                    />
-                    <svg className="w-4 h-4 text-gray-400 absolute left-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
-                    </svg>
-                  </div>
-                </div>
-
-                {/* E-mail (Bloqueado) */}
-                <div className="flex flex-col w-full">
-                  <label className="text-[13px] font-semibold text-gray-700 mb-2">E-mail corporativo</label>
-                  <div className="relative flex items-center w-full">
-                    <input
-                      type="email"
-                      name="email"
-                      value={formData.email}
-                      disabled
-                      className="w-full p-3 pl-10 border border-gray-200 bg-gray-50 rounded-md text-sm text-gray-500 cursor-not-allowed outline-none select-none"
-                    />
-                    <svg className="w-4 h-4 text-gray-400 absolute left-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
-                    </svg>
-                  </div>
-                </div>
-
-                {/* Telefone (Editável) */}
-                <div className="flex flex-col w-full">
-                  <label className="text-[13px] font-semibold text-gray-700 mb-2">Telefone de Contato</label>
+              {/* Nome Completo */}
+              <div className="flex flex-col w-full">
+                <label className="text-[13px] font-semibold text-gray-700 mb-2">Nome Completo</label>
+                <div className="relative flex items-center w-full">
                   <input
                     type="text"
-                    name="telefone"
-                    value={formData.telefone}
-                    onChange={handleInputChange}
-                    placeholder="(00) 00000-0000"
-                    disabled={isLoading}
-                    className="w-full p-3 border border-gray-300 rounded-md text-sm outline-none focus:border-[#00a8ac] focus:ring-1 focus:ring-[#00a8ac] transition bg-white"
+                    value={formData.name}
+                    disabled
+                    className="w-full p-3 pl-10 border border-gray-200 bg-gray-50 rounded-md text-sm text-gray-500 cursor-not-allowed outline-none select-none"
                   />
+                  <svg className="w-4 h-4 text-gray-400 absolute left-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                  </svg>
                 </div>
-
               </div>
+
+              {/* E-mail */}
+              <div className="flex flex-col w-full">
+                <label className="text-[13px] font-semibold text-gray-700 mb-2">E-mail corporativo</label>
+                <div className="relative flex items-center w-full">
+                  <input
+                    type="email"
+                    value={formData.email}
+                    disabled
+                    className="w-full p-3 pl-10 border border-gray-200 bg-gray-50 rounded-md text-sm text-gray-500 cursor-not-allowed outline-none select-none"
+                  />
+                  <svg className="w-4 h-4 text-gray-400 absolute left-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                  </svg>
+                </div>
+              </div>
+
             </div>
 
             {/* AÇÕES */}
-            <div className="mt-8 pt-6 border-t border-gray-100 flex justify-between items-center">
-              {/* Botão Excluir Conta */}
+            <div className="mt-8 pt-6 border-t border-gray-100 flex justify-start">
               <button
                 type="button"
                 onClick={() => setShowDeleteModal(true)}
@@ -198,22 +154,13 @@ export default function MeuPerfil() {
               >
                 Excluir conta
               </button>
-
-              {/* Botão Salvar */}
-              <button
-                type="submit"
-                disabled={isSaving || isLoading}
-                className="px-6 py-2.5 bg-[#00a8ac] text-white rounded-md text-sm font-semibold hover:bg-[#008f92] transition-colors shadow-sm disabled:opacity-70 disabled:cursor-not-allowed"
-              >
-                {isSaving ? 'Salvando...' : 'Salvar telefone'}
-              </button>
             </div>
 
-          </form>
+          </div>
         </div>
       </main>
 
-      {/* MODAL DE CONFIRMAÇÃO DE EXCLUSÃO */}
+      {/* MODAL DE CONFIRMAÇÃO */}
       {showDeleteModal && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 px-4">
           <div className="bg-white rounded-xl shadow-xl max-w-md w-full p-6">
@@ -225,11 +172,9 @@ export default function MeuPerfil() {
               </div>
               <h3 className="text-lg font-bold text-gray-900">Excluir conta</h3>
             </div>
-
             <p className="text-sm text-gray-600 mb-6">
               Tem certeza que deseja excluir sua conta? Esta ação é <strong>irreversível</strong> e todos os seus dados serão permanentemente removidos do sistema.
             </p>
-
             <div className="flex gap-3 justify-end">
               <button
                 onClick={() => setShowDeleteModal(false)}
