@@ -59,7 +59,7 @@ export default function Termos() {
 
         <div className="mt-6 flex gap-3 justify-end">
           <button
-            onClick={() => router.back()}
+            onClick={() => router.push('/cadastro')}
             className="px-5 py-2 text-sm rounded border border-gray-300 text-gray-600 hover:bg-gray-50 transition-colors"
           >
             Voltar
