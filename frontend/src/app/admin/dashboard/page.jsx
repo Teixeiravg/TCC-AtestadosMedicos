@@ -18,7 +18,8 @@ export default function AdminDashboard() {
     async function fetchTodosAtestados() {
       try {
         setIsLoading(true);
-        const response = await api.get('/admin/certificates');
+        // limit=100 para buscar todos os atestados sem ser cortado pela paginação padrão (10)
+        const response = await api.get('/admin/certificates?limit=100');
         setAtestados(response.data.data);
       } catch (err) {
         console.error('Erro ao buscar atestados:', err);
@@ -36,11 +37,12 @@ export default function AdminDashboard() {
     const meses = ['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'];
     const anoAtual = new Date().getFullYear();
 
+    // Usa startDate (UTC) para refletir o período real do afastamento
     const contagemMensal = Array(12).fill(0);
     atestados.forEach((a) => {
-      const d = new Date(a.createdAt || a.startDate);
-      if (d.getFullYear() === anoAtual) {
-        contagemMensal[d.getMonth()]++;
+      const d = new Date(a.startDate);
+      if (d.getUTCFullYear() === anoAtual) {
+        contagemMensal[d.getUTCMonth()]++;
       }
     });
 
@@ -231,7 +233,7 @@ export default function AdminDashboard() {
           <div className="bg-white border border-gray-200 rounded-xl p-6 shadow-sm flex flex-col">
             <div className="mb-4">
               <h2 className="text-lg font-semibold text-gray-900">Fluxo Mensal</h2>
-              <p className="text-xs text-gray-400 mt-0.5">Atestados recebidos por mês em {new Date().getFullYear()}</p>
+              <p className="text-xs text-gray-400 mt-0.5">Atestados por mês com base na data de início do afastamento ({new Date().getFullYear()})</p>
             </div>
             <div className="relative flex-1 min-h-[260px]">
               {isLoading ? (
