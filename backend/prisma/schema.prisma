@@ -71,7 +71,7 @@ model AuditLog {
   timestamp DateTime @default(now())
 
   certificateId String
-  certificate MedicalCertificate @relation(fields: [certificatedId], references: [id])
+  certificate MedicalCertificate @relation(fields: [certificateId], references: [id])
 
   actorId String
   actor User @relation(fields: [actorId], references: [id])
