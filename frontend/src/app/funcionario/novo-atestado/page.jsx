@@ -1,20 +1,54 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import NavBar from '@/components/NavBar'; // <-- Importando o NavBar
+import NavBar from '@/components/NavBar';
 import api from '@/services/api';
-// Se você estiver usando a instância do axios configurada no seu repositório:
-// import api from '@/services/api'; 
 
+// ─── Toast ───────────────────────────────────────────────────────────────────
+function Toast({ toasts, remove }) {
+  return (
+    <div className="fixed bottom-6 right-6 z-50 flex flex-col gap-2 pointer-events-none">
+      {toasts.map((t) => (
+        <div
+          key={t.id}
+          onClick={() => remove(t.id)}
+          className={`pointer-events-auto flex items-center gap-3 px-4 py-3 rounded-lg shadow-lg text-sm font-medium text-white cursor-pointer
+            ${t.type === 'success' ? 'bg-emerald-500' : t.type === 'error' ? 'bg-red-500' : 'bg-gray-700'}`}
+        >
+          {t.type === 'success' && (
+            <svg className="w-4 h-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 13l4 4L19 7" /></svg>
+          )}
+          {t.type === 'error' && (
+            <svg className="w-4 h-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M6 18L18 6M6 6l12 12" /></svg>
+          )}
+          {t.message}
+        </div>
+      ))}
+    </div>
+  );
+}
+
+function useToast() {
+  const [toasts, setToasts] = useState([]);
+  const add = useCallback((message, type = 'success', duration = 3500) => {
+    const id = Date.now();
+    setToasts((prev) => [...prev, { id, message, type }]);
+    setTimeout(() => setToasts((prev) => prev.filter((t) => t.id !== id)), duration);
+  }, []);
+  const remove = useCallback((id) => setToasts((prev) => prev.filter((t) => t.id !== id)), []);
+  return { toasts, add, remove };
+}
+
+// ─── Página ───────────────────────────────────────────────────────────────────
 export default function EnviarAtestado() {
   const router = useRouter();
+  const { toasts, add: addToast, remove } = useToast();
   const [isLoading, setIsLoading] = useState(false);
   const [file, setFile] = useState(null);
   const [dateError, setDateError] = useState('');
 
-  // Estado para os campos de texto e data
   const [formData, setFormData] = useState({
     dataInicio: '',
     dataTermino: '',
@@ -26,17 +60,11 @@ export default function EnviarAtestado() {
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
-
-    // CRM: só permite dígitos
     if (name === 'crm') {
-      const apenasNumeros = value.replace(/\D/g, '');
-      setFormData(prev => ({ ...prev, [name]: apenasNumeros }));
+      setFormData(prev => ({ ...prev, [name]: value.replace(/\D/g, '') }));
       return;
     }
-
     setFormData(prev => ({ ...prev, [name]: value }));
-
-    // Valida datas ao alterar qualquer campo de data
     if (name === 'dataTermino' || name === 'dataInicio') {
       const inicio = name === 'dataInicio' ? value : formData.dataInicio;
       const termino = name === 'dataTermino' ? value : formData.dataTermino;
@@ -49,30 +77,20 @@ export default function EnviarAtestado() {
   };
 
   const handleFileChange = (e) => {
-    if (e.target.files && e.target.files.length > 0) {
-      setFile(e.target.files[0]);
-    }
+    if (e.target.files && e.target.files.length > 0) setFile(e.target.files[0]);
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
-    if (!file) {
-      alert("Por favor, anexe o arquivo do atestado.");
-      return;
-    }
-
-    if (dateError) {
-      alert(dateError);
-      return;
-    }
+    if (!file) { addToast('Por favor, anexe o arquivo do atestado.', 'error'); return; }
+    if (dateError) { addToast(dateError, 'error'); return; }
 
     setIsLoading(true);
-
     try {
       const data = new FormData();
       data.append('file', file);
       data.append('startDate', formData.dataInicio);
+      data.append('endDate', formData.dataTermino); // fix: endDate agora é enviado
       data.append('crmNumber', formData.crm);
       data.append('motivo', formData.motivo);
       data.append('nomeMedico', formData.nomeMedico);
@@ -87,12 +105,11 @@ export default function EnviarAtestado() {
         headers: { 'Content-Type': 'multipart/form-data' }
       });
 
-      alert('Atestado enviado com sucesso!');
-      router.push('/funcionario/meus-atestados');
-
+      addToast('Atestado enviado com sucesso!', 'success');
+      setTimeout(() => router.push('/funcionario/meus-atestados'), 1500);
     } catch (error) {
-      console.error("Erro no envio:", error);
-      alert('Ocorreu um erro ao enviar. Tente novamente.');
+      console.error('Erro no envio:', error);
+      addToast('Ocorreu um erro ao enviar. Tente novamente.', 'error');
     } finally {
       setIsLoading(false);
     }
@@ -100,11 +117,9 @@ export default function EnviarAtestado() {
 
   return (
     <div className="min-h-screen bg-gray-50 text-gray-800 font-sans flex flex-col">
-
-      {/* Componente NavBar inserido no lugar do header solto */}
       <NavBar />
+      <Toast toasts={toasts} remove={remove} />
 
-      {/* Alteração principal feita aqui: flex-1 para preencher a tela, mantendo as margens originais */}
       <main className="flex-1 w-full px-10 py-10 bg-white">
         <Link href="/funcionario/dashboard" className="text-sm text-gray-500 hover:underline mb-6 inline-block">
           &larr; Voltar
@@ -117,37 +132,24 @@ export default function EnviarAtestado() {
           <div className="flex flex-col md:flex-row gap-5">
             <div className="flex-1 flex flex-col">
               <label className="text-[13px] font-medium text-gray-700 mb-2">Data de início<span className="text-red-500">*</span></label>
-              <input
-                type="date"
-                name="dataInicio"
-                value={formData.dataInicio}
-                onChange={handleInputChange}
-                className="w-full p-3 border border-gray-300 rounded-md text-sm outline-none focus:border-[#00a8ac] focus:ring-1 focus:ring-[#00a8ac] transition"
-                required
-              />
+              <input type="date" name="dataInicio" value={formData.dataInicio} onChange={handleInputChange}
+                className="w-full p-3 border border-gray-300 rounded-md text-sm outline-none focus:border-[#00a8ac] focus:ring-1 focus:ring-[#00a8ac] transition" required />
             </div>
             <div className="flex-1 flex flex-col">
               <label className="text-[13px] font-medium text-gray-700 mb-2">Data de término<span className="text-red-500">*</span></label>
-              <input
-                type="date"
-                name="dataTermino"
-                value={formData.dataTermino}
-                onChange={handleInputChange}
-                className="w-full p-3 border border-gray-300 rounded-md text-sm outline-none focus:border-[#00a8ac] focus:ring-1 focus:ring-[#00a8ac] transition"
-                required
-              />
+              <input type="date" name="dataTermino" value={formData.dataTermino} onChange={handleInputChange}
+                className="w-full p-3 border border-gray-300 rounded-md text-sm outline-none focus:border-[#00a8ac] focus:ring-1 focus:ring-[#00a8ac] transition" required />
             </div>
           </div>
 
+          {dateError && (
+            <p className="text-sm text-red-500 -mt-4">{dateError}</p>
+          )}
+
           <div className="flex flex-col">
             <label className="text-[13px] font-medium text-gray-700 mb-2">Motivo<span className="text-red-500">*</span></label>
-            <select
-              name="motivo"
-              value={formData.motivo}
-              onChange={handleInputChange}
-              className="w-full p-3 border border-gray-300 rounded-md text-sm bg-white outline-none focus:border-[#00a8ac] focus:ring-1 focus:ring-[#00a8ac] transition appearance-none"
-              required
-            >
+            <select name="motivo" value={formData.motivo} onChange={handleInputChange}
+              className="w-full p-3 border border-gray-300 rounded-md text-sm bg-white outline-none focus:border-[#00a8ac] focus:ring-1 focus:ring-[#00a8ac] transition appearance-none" required>
               <option value="" disabled>Selecione</option>
               <option value="DOENCA">Doença</option>
               <option value="EXAME">Exame Médico</option>
@@ -158,38 +160,23 @@ export default function EnviarAtestado() {
           <div className="flex flex-col md:flex-row gap-5">
             <div className="flex-1 flex flex-col">
               <label className="text-[13px] font-medium text-gray-700 mb-2">Nome do médico</label>
-              <input
-                type="text"
-                name="nomeMedico"
-                value={formData.nomeMedico}
-                onChange={handleInputChange}
+              <input type="text" name="nomeMedico" value={formData.nomeMedico} onChange={handleInputChange}
                 placeholder="Dr. Nome"
-                className="w-full p-3 border border-gray-300 rounded-md text-sm outline-none focus:border-[#00a8ac] focus:ring-1 focus:ring-[#00a8ac] transition"
-              />
+                className="w-full p-3 border border-gray-300 rounded-md text-sm outline-none focus:border-[#00a8ac] focus:ring-1 focus:ring-[#00a8ac] transition" />
             </div>
             <div className="flex-1 flex flex-col">
               <label className="text-[13px] font-medium text-gray-700 mb-2">CRM</label>
-              <input
-                type="text"
-                name="crm"
-                value={formData.crm}
-                onChange={handleInputChange}
-                placeholder="Somente números"
-                inputMode="numeric"
-                className="w-full p-3 border border-gray-300 rounded-md text-sm outline-none focus:border-[#00a8ac] focus:ring-1 focus:ring-[#00a8ac] transition"
-              />
+              <input type="text" name="crm" value={formData.crm} onChange={handleInputChange}
+                placeholder="Somente números" inputMode="numeric"
+                className="w-full p-3 border border-gray-300 rounded-md text-sm outline-none focus:border-[#00a8ac] focus:ring-1 focus:ring-[#00a8ac] transition" />
             </div>
           </div>
 
           <div className="flex flex-col">
             <label className="text-[13px] font-medium text-gray-700 mb-2">Observações</label>
-            <textarea
-              name="observacoes"
-              value={formData.observacoes}
-              onChange={handleInputChange}
+            <textarea name="observacoes" value={formData.observacoes} onChange={handleInputChange}
               placeholder="Informações adicionais que queira adicionar..."
-              className="w-full p-3 border border-gray-300 rounded-md text-sm min-h-30 resize-y outline-none focus:border-[#00a8ac] focus:ring-1 focus:ring-[#00a8ac] transition"
-            ></textarea>
+              className="w-full p-3 border border-gray-300 rounded-md text-sm min-h-30 resize-y outline-none focus:border-[#00a8ac] focus:ring-1 focus:ring-[#00a8ac] transition" />
           </div>
 
           <div className="flex flex-col">
@@ -197,24 +184,15 @@ export default function EnviarAtestado() {
             <div className="relative flex items-center border border-gray-300 rounded-md p-3 bg-white focus-within:border-[#00a8ac] focus-within:ring-1 focus-within:ring-[#00a8ac] transition">
               <span className="flex items-center gap-2 text-sm text-gray-500 pointer-events-none">
                 <span className="transform -rotate-45">📎</span>
-                {file ? file.name : "Anexar PDF, JPG ou PNG"}
+                {file ? file.name : 'Anexar PDF, JPG ou PNG'}
               </span>
-              <input
-                type="file"
-                accept=".pdf,.jpg,.jpeg,.png"
-                onChange={handleFileChange}
-                className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
-                required
-              />
+              <input type="file" accept=".pdf,.jpg,.jpeg,.png" onChange={handleFileChange}
+                className="absolute inset-0 w-full h-full opacity-0 cursor-pointer" required />
             </div>
           </div>
 
-          {/* Botão Enviar */}
-          <button
-            type="submit"
-            disabled={isLoading}
-            className="w-full mt-4 py-3 bg-[#00a8ac] text-white rounded-md text-[15px] font-semibold hover:bg-[#008f92] transition-colors disabled:opacity-70 disabled:cursor-not-allowed"
-          >
+          <button type="submit" disabled={isLoading || !!dateError}
+            className="w-full mt-4 py-3 bg-[#00a8ac] text-white rounded-md text-[15px] font-semibold hover:bg-[#008f92] transition-colors disabled:opacity-70 disabled:cursor-not-allowed">
             {isLoading ? 'Enviando...' : 'Enviar atestado'}
           </button>
         </form>
