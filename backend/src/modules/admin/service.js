@@ -26,7 +26,7 @@ async function listarAtestados(page, limit, status) {
             },
         })
     ]);
-        return { total, atestados }
+    return { total, atestados };
 }
 
 async function buscarAtestadoPorId(id) {
@@ -42,7 +42,7 @@ async function buscarAtestadoPorId(id) {
             },
             reviewedBy: {
                 select: {
-                    id: true, 
+                    id: true,
                     name: true,
                 },
             },
@@ -56,7 +56,7 @@ async function buscarAtestadoPorId(id) {
     return atestado;
 }
 
-async function alterarStatusAtestado(id, novoStatus, adminId, adminNotes, ipAddress) {
+async function alterarStatusAtestado(id, novoStatus, adminId, motivoRecusa, ipAddress) {
     return await prisma.$transaction(async (prisma) => {
         const atestado = await prisma.medicalCertificate.findUnique({
             where: { id },
@@ -66,12 +66,23 @@ async function alterarStatusAtestado(id, novoStatus, adminId, adminNotes, ipAddr
             throw new Error('Atestado não encontrado');
         }
 
+        // Monta o objeto de atualização
+        const dadosAtualizacao = {
+            status: novoStatus,
+            reviewedById: adminId,
+        };
+
+        // Só salva motivoRecusa quando for REJECTED
+        if (novoStatus === 'REJECTED') {
+            dadosAtualizacao.motivoRecusa = motivoRecusa || null;
+        } else {
+            // Se aprovar depois de ter sido recusado, limpa o motivo
+            dadosAtualizacao.motivoRecusa = null;
+        }
+
         const atualizacao = await prisma.medicalCertificate.update({
             where: { id },
-            data: {
-                status: novoStatus,
-                reviewedById: adminId,
-            },
+            data: dadosAtualizacao,
             include: {
                 user: {
                     select: {
@@ -94,12 +105,13 @@ async function alterarStatusAtestado(id, novoStatus, adminId, adminNotes, ipAddr
                 action: `ATESTADO_${novoStatus}`,
                 previousState: atestado.status,
                 newState: novoStatus,
-                adminNotes: adminNotes || null,
+                adminNotes: motivoRecusa || null,
                 ipAddress: ipAddress || null,
                 certificatedId: id,
                 actorId: adminId,
             },
         });
+
         return atualizacao;
     });
 }
@@ -107,5 +119,5 @@ async function alterarStatusAtestado(id, novoStatus, adminId, adminNotes, ipAddr
 module.exports = {
     listarAtestados,
     buscarAtestadoPorId,
-    alterarStatusAtestado
-}
+    alterarStatusAtestado,
+};

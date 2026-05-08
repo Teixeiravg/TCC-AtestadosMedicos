@@ -21,7 +21,6 @@ model User {
   reviewedByMe MedicalCertificate[] @relation("ReviewedBy")
   auditLogs AuditLog[]
   consentAgreements ConsentAgreement[]
-
 }
 
 enum Role {
@@ -36,10 +35,10 @@ model MedicalCertificate {
   status CertificateStatus @default(PENDING)
   fileUrl String?
   crmNumber String
-  motivo Motivo?      
+  motivo Motivo?
   observacoes String? @db.Text
+  motivoRecusa String? @db.Text
   createdAt DateTime @default(now())
-  
 
   userId String
   user User @relation("UserCertificates", fields: [userId], references: [id])

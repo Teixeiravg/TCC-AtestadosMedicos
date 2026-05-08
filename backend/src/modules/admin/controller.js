@@ -1,12 +1,12 @@
 const adminService = require('./service');
 
 async function listarAtestados(req, res) {
-    try{
+    try {
         const page = Math.max(Number(req.query.page) || 1, 1);
         const limit = Math.min(Math.max(Number(req.query.limit) || 10, 1), 100);
         const status = req.query.status;
 
-        const {total, atestados} = await adminService.listarAtestados(page, limit, status);
+        const { total, atestados } = await adminService.listarAtestados(page, limit, status);
 
         const totalPages = Math.ceil(total / limit);
 
@@ -43,13 +43,12 @@ async function buscarAtestadoPorId(req, res) {
 async function aprovarAtestado(req, res) {
     try {
         const { id } = req.params;
-        const adminNotes = req.body?.adminNotes || null;
 
         const atestado = await adminService.alterarStatusAtestado(
             id,
             'APPROVED',
             req.user.id,
-            adminNotes,
+            null,
             req.ip,
         );
         return res.status(200).json(atestado);
@@ -65,13 +64,14 @@ async function aprovarAtestado(req, res) {
 async function rejeitarAtestado(req, res) {
     try {
         const { id } = req.params;
-        const adminNotes = req.body?.adminNotes || null;
+        // Aceita tanto 'motivoRecusa' (frontend) quanto 'adminNotes' (legado)
+        const motivoRecusa = req.body?.motivoRecusa || req.body?.adminNotes || null;
 
         const atestado = await adminService.alterarStatusAtestado(
             id,
             'REJECTED',
             req.user.id,
-            adminNotes,
+            motivoRecusa,
             req.ip,
         );
         return res.status(200).json(atestado);
@@ -88,5 +88,5 @@ module.exports = {
     listarAtestados,
     buscarAtestadoPorId,
     aprovarAtestado,
-    rejeitarAtestado
-}
+    rejeitarAtestado,
+};
