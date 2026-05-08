@@ -66,17 +66,14 @@ async function alterarStatusAtestado(id, novoStatus, adminId, motivoRecusa, ipAd
             throw new Error('Atestado não encontrado');
         }
 
-        // Monta o objeto de atualização
         const dadosAtualizacao = {
             status: novoStatus,
             reviewedById: adminId,
         };
 
-        // Só salva motivoRecusa quando for REJECTED
         if (novoStatus === 'REJECTED') {
             dadosAtualizacao.motivoRecusa = motivoRecusa || null;
         } else {
-            // Se aprovar depois de ter sido recusado, limpa o motivo
             dadosAtualizacao.motivoRecusa = null;
         }
 
@@ -107,7 +104,7 @@ async function alterarStatusAtestado(id, novoStatus, adminId, motivoRecusa, ipAd
                 newState: novoStatus,
                 adminNotes: motivoRecusa || null,
                 ipAddress: ipAddress || null,
-                certificatedId: id,
+                certificateId: id,
                 actorId: adminId,
             },
         });
