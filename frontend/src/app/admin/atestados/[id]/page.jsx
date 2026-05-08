@@ -15,7 +15,7 @@ function Toast({ toasts, remove }) {
         <div
           key={t.id}
           onClick={() => remove(t.id)}
-          className={`pointer-events-auto flex items-center gap-3 px-4 py-3 rounded-lg shadow-lg text-sm font-medium text-white cursor-pointer
+          className={`pointer-events-auto flex items-center gap-3 px-4 py-3 rounded-lg shadow-lg text-sm font-medium text-white cursor-pointer transition-all
             ${t.type === 'success' ? 'bg-emerald-500' : t.type === 'error' ? 'bg-red-500' : 'bg-gray-700'}`}
         >
           {t.type === 'success' && (
@@ -46,23 +46,29 @@ function useToast() {
 function ModalRecusa({ onConfirm, onCancel, isProcessing }) {
   const [motivo, setMotivo] = useState('');
   return (
-    <div className="fixed inset-0 z-40 flex items-center justify-center bg-black/50 backdrop-blur-sm">
-      <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md mx-4 p-6">
+    <div className="fixed inset-0 z-40 flex items-center justify-center bg-black/40 backdrop-blur-sm">
+      <div className="bg-white rounded-xl shadow-2xl w-full max-w-md mx-4 p-6">
         <h2 className="text-lg font-bold text-gray-900 mb-1">Recusar atestado</h2>
         <p className="text-sm text-gray-500 mb-4">Informe o motivo da recusa para que o funcionário seja notificado.</p>
         <textarea
           value={motivo}
           onChange={(e) => setMotivo(e.target.value)}
           placeholder="Ex: Documento ilegível, CRM inválido, data inconsistente..."
-          className="w-full border border-gray-200 rounded-xl p-3 text-sm resize-none h-28 outline-none focus:border-red-400 focus:ring-1 focus:ring-red-300 transition"
+          className="w-full border border-gray-200 rounded-lg p-3 text-sm resize-none h-28 outline-none focus:border-red-400 focus:ring-1 focus:ring-red-300 transition"
         />
         <div className="flex gap-3 mt-4">
-          <button onClick={onCancel} disabled={isProcessing}
-            className="flex-1 py-2.5 rounded-lg border border-gray-200 text-sm font-medium text-gray-600 hover:bg-gray-50 transition">
+          <button
+            onClick={onCancel}
+            disabled={isProcessing}
+            className="flex-1 py-2.5 rounded-md border border-gray-200 text-sm font-medium text-gray-600 hover:bg-gray-50 transition"
+          >
             Cancelar
           </button>
-          <button onClick={() => onConfirm(motivo)} disabled={isProcessing || !motivo.trim()}
-            className="flex-1 py-2.5 rounded-lg bg-red-500 text-white text-sm font-bold hover:bg-red-600 transition disabled:opacity-50 disabled:cursor-not-allowed">
+          <button
+            onClick={() => onConfirm(motivo)}
+            disabled={isProcessing || !motivo.trim()}
+            className="flex-1 py-2.5 rounded-md bg-red-500 text-white text-sm font-bold hover:bg-red-600 transition disabled:opacity-50 disabled:cursor-not-allowed"
+          >
             {isProcessing ? 'Recusando...' : 'Confirmar Recusa'}
           </button>
         </div>
@@ -106,7 +112,8 @@ export default function DetalhesAtestado({ params }) {
       setAtestado((prev) => ({ ...prev, status: 'APPROVED' }));
       addToast('Atestado aprovado com sucesso!', 'success');
     } catch (err) {
-      addToast('Erro ao aprovar. Tente novamente.', 'error');
+      addToast('Erro ao aprovar o atestado. Tente novamente.', 'error');
+      console.error(err);
     } finally {
       setIsProcessing(false);
     }
@@ -120,7 +127,8 @@ export default function DetalhesAtestado({ params }) {
       setShowModalRecusa(false);
       addToast('Atestado recusado.', 'error');
     } catch (err) {
-      addToast('Erro ao recusar. Tente novamente.', 'error');
+      addToast('Erro ao recusar o atestado. Tente novamente.', 'error');
+      console.error(err);
     } finally {
       setIsProcessing(false);
     }
@@ -146,16 +154,16 @@ export default function DetalhesAtestado({ params }) {
   if (isLoading) return (
     <div className="min-h-screen bg-gray-50 flex flex-col">
       <NavBarAdmin />
-      <main className="flex-1 flex items-center justify-center text-sm text-gray-400">Carregando documento...</main>
+      <main className="flex-1 flex items-center justify-center text-gray-500 text-sm">Carregando informações do documento...</main>
     </div>
   );
 
   if (error || !atestado) return (
     <div className="min-h-screen bg-gray-50 flex flex-col">
       <NavBarAdmin />
-      <main className="flex-1 flex flex-col items-center justify-center gap-3 text-center p-8">
-        <p className="text-red-500">{error || 'Atestado não encontrado.'}</p>
-        <Link href="/admin/atestados" className="text-[#00a8ac] hover:underline text-sm">&larr; Voltar para a lista</Link>
+      <main className="flex-1 flex flex-col items-center justify-center p-8 text-center gap-4">
+        <div className="text-red-500">{error || 'Atestado não encontrado.'}</div>
+        <Link href="/admin/atestados" className="text-[#00a8ac] hover:underline text-sm font-medium">&larr; Voltar para a lista</Link>
       </main>
     </div>
   );
@@ -163,13 +171,22 @@ export default function DetalhesAtestado({ params }) {
   const fileUrl = atestado.fileUrl
     ? `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001'}${atestado.fileUrl}`
     : null;
-
   const isPending = atestado.status === 'PENDING';
   const isApproved = atestado.status === 'APPROVED';
   const isRejected = atestado.status === 'REJECTED';
 
+  const statusColorClass = isApproved
+    ? 'bg-emerald-50 border-emerald-200 text-emerald-700'
+    : 'bg-red-50 border-red-200 text-red-700';
+
+  const statusIcon = isApproved ? (
+    <svg className="w-5 h-5 text-emerald-600" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" /></svg>
+  ) : (
+    <svg className="w-5 h-5 text-red-600" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg>
+  );
+
   return (
-    <div className="h-screen bg-gray-50 flex flex-col font-sans overflow-hidden">
+    <div className="min-h-screen bg-gray-50 flex flex-col font-sans">
       <NavBarAdmin />
       <Toast toasts={toasts} remove={remove} />
       {showModalRecusa && (
@@ -180,179 +197,132 @@ export default function DetalhesAtestado({ params }) {
         />
       )}
 
-      {/* Layout de tela cheia: 2 colunas */}
-      <div className="flex flex-1 overflow-hidden">
-
-        {/* Esquerda — Visualizador PDF (ocupa toda a altura) */}
-        <div className="hidden md:flex w-1/2 flex-col bg-gray-900 border-r border-gray-800">
-          <div className="flex items-center gap-3 px-5 py-3 border-b border-gray-700/60 bg-gray-800">
-            <svg className="w-4 h-4 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13" />
-            </svg>
-            <span className="text-sm text-gray-300 font-medium">Documento Anexado</span>
-            {fileUrl && (
-              <a href={fileUrl} target="_blank" rel="noreferrer"
-                className="ml-auto text-xs text-[#00a8ac] hover:underline">
-                Abrir em nova guia ↗
-              </a>
-            )}
-          </div>
-          <div className="flex-1">
-            {fileUrl ? (
-              <embed src={fileUrl} className="w-full h-full" type="application/pdf" />
-            ) : (
-              <div className="h-full flex items-center justify-center text-gray-500 text-sm italic">
-                Nenhum arquivo enviado
-              </div>
-            )}
-          </div>
+      <main className="flex-1 w-full max-w-5xl mx-auto px-6 py-10">
+        <div className="mb-8">
+          <Link href="/admin/atestados" className="text-sm text-gray-500 hover:text-[#00a8ac] hover:underline mb-4 inline-block transition-colors">
+            &larr; Voltar para atestados
+          </Link>
+          <h1 className="text-3xl font-bold text-gray-900">
+            {isPending ? 'Avaliação de Atestado' : 'Atestado Avaliado'}
+          </h1>
+          <p className="text-sm text-gray-500 mt-1">
+            {isPending
+              ? 'Verifique o documento e decida sobre a aprovação.'
+              : 'Os detalhes deste documento já foram processados pelo RH.'}
+          </p>
         </div>
 
-        {/* Direita — Detalhes + ações (scroll interno) */}
-        <div className="w-full md:w-1/2 flex flex-col overflow-y-auto">
-          {/* Topo com back + título */}
-          <div className="px-8 pt-7 pb-5 border-b border-gray-100 bg-white sticky top-0 z-10">
-            <Link href="/admin/atestados"
-              className="text-xs text-gray-400 hover:text-[#00a8ac] transition-colors mb-3 inline-flex items-center gap-1">
-              <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+        <div className="bg-white border border-gray-200 rounded-xl shadow-sm overflow-hidden flex flex-col md:flex-row">
+
+          {/* Visualizador */}
+          <div className="w-full md:w-1/2 bg-gray-100 border-r border-gray-200 p-6 flex flex-col">
+            <h3 className="text-sm font-semibold text-gray-700 mb-3 flex items-center gap-2">
+              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13" />
               </svg>
-              Voltar para atestados
-            </Link>
-            <h1 className="text-xl font-bold text-gray-900">
-              {isPending ? 'Avaliação de Atestado' : 'Atestado Avaliado'}
-            </h1>
-            <p className="text-xs text-gray-500 mt-0.5">
-              {isPending
-                ? 'Verifique o documento e decida sobre a aprovação.'
-                : 'Este documento já foi processado pelo RH.'}
-            </p>
-          </div>
-
-          <div className="flex-1 px-8 py-6 space-y-6 bg-gray-50">
-
-            {/* Status banner */}
-            {!isPending && (
-              <div className={`flex items-center gap-3 px-4 py-3 rounded-xl border ${
-                isApproved ? 'bg-emerald-50 border-emerald-200' : 'bg-red-50 border-red-200'
-              }`}>
-                <div className={`w-8 h-8 rounded-full flex items-center justify-center ${
-                  isApproved ? 'bg-emerald-100' : 'bg-red-100'
-                }`}>
-                  {isApproved ? (
-                    <svg className="w-4 h-4 text-emerald-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 13l4 4L19 7" />
-                    </svg>
-                  ) : (
-                    <svg className="w-4 h-4 text-red-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M6 18L18 6M6 6l12 12" />
-                    </svg>
-                  )}
-                </div>
-                <div>
-                  <p className={`text-xs font-bold uppercase tracking-wider ${
-                    isApproved ? 'text-emerald-600' : 'text-red-500'
-                  }`}>Status Final</p>
-                  <p className={`font-semibold text-sm ${
-                    isApproved ? 'text-emerald-800' : 'text-red-800'
-                  }`}>
-                    {isApproved ? 'Documento Aprovado' : 'Documento Recusado'}
-                  </p>
-                </div>
-              </div>
-            )}
-
-            {/* Motivo de recusa */}
-            {isRejected && atestado.motivoRecusa && (
-              <div className="bg-red-50 border border-red-200 rounded-xl p-4">
-                <p className="text-xs font-bold text-red-400 uppercase tracking-wider mb-2">Motivo da Recusa</p>
-                <p className="text-sm text-red-800 leading-relaxed">{atestado.motivoRecusa}</p>
-              </div>
-            )}
-
-            {/* Dados do funcionário */}
-            <div className="bg-white rounded-xl border border-gray-200 p-5">
-              <p className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-3">Funcionário</p>
-              <p className="text-lg font-bold text-gray-900">{atestado.user?.name || 'Não Informado'}</p>
-              <p className="text-sm text-gray-500">{atestado.user?.email}</p>
+              Documento Anexado
+            </h3>
+            <div className="flex-1 bg-white border border-gray-300 rounded-lg overflow-hidden flex items-center justify-center" style={{minHeight: '320px'}}>
+              {fileUrl ? (
+                <embed src={fileUrl} className="w-full h-full" style={{minHeight: '320px'}} type="application/pdf" />
+              ) : (
+                <span className="text-gray-400 text-sm italic">Nenhum arquivo enviado</span>
+              )}
             </div>
-
-            {/* Detalhes do afastamento */}
-            <div className="bg-white rounded-xl border border-gray-200 p-5">
-              <p className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-3">Afastamento</p>
-              <div className="grid grid-cols-3 gap-3">
-                <div className="bg-gray-50 rounded-lg p-3 border border-gray-100">
-                  <span className="block text-xs text-gray-500 mb-1">Início</span>
-                  <span className="font-semibold text-gray-900 text-sm">{formatarData(atestado.startDate)}</span>
-                </div>
-                <div className="bg-gray-50 rounded-lg p-3 border border-gray-100">
-                  <span className="block text-xs text-gray-500 mb-1">Fim</span>
-                  <span className="font-semibold text-gray-900 text-sm">{formatarData(atestado.endDate)}</span>
-                </div>
-                <div className="bg-[#e4fcfc] rounded-lg p-3 border border-[#b2e8e8]">
-                  <span className="block text-xs text-[#00a8ac] mb-1">Dias</span>
-                  <span className="font-bold text-[#00a8ac] text-sm">{calcularDias(atestado.startDate, atestado.endDate)}d</span>
-                </div>
-              </div>
-              <div className="mt-4 flex flex-wrap gap-x-8 gap-y-3">
-                <div>
-                  <span className="block text-xs text-gray-500 mb-1">Motivo</span>
-                  <span className="font-semibold text-gray-900 text-sm">{formatarMotivo(atestado.motivo)}</span>
-                </div>
-                {atestado.nomeMedico && (
-                  <div>
-                    <span className="block text-xs text-gray-500 mb-1">Médico</span>
-                    <span className="font-semibold text-gray-900 text-sm">{atestado.nomeMedico}</span>
-                  </div>
-                )}
-                {atestado.crmNumber && (
-                  <div>
-                    <span className="block text-xs text-gray-500 mb-1">CRM</span>
-                    <span className="font-semibold text-gray-900 text-sm">{atestado.crmNumber}</span>
-                  </div>
-                )}
-              </div>
-            </div>
-
-            {atestado.observacoes && (
-              <div className="bg-white rounded-xl border border-gray-200 p-5">
-                <p className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">Observações</p>
-                <p className="text-sm text-gray-700 leading-relaxed">{atestado.observacoes}</p>
-              </div>
-            )}
-
-            {/* Botão mobile para ver arquivo */}
             {fileUrl && (
-              <a href={fileUrl} target="_blank" rel="noreferrer"
-                className="md:hidden flex items-center justify-center gap-2 w-full py-2.5 bg-gray-800 text-white rounded-xl text-sm font-semibold hover:bg-gray-700 transition">
-                Visualizar Documento
+              <a href={fileUrl} download target="_blank" rel="noreferrer"
+                className="mt-4 text-center text-sm text-white font-medium bg-[#00a8ac] py-2 rounded-md hover:bg-[#008f92] transition">
+                Abrir em nova guia
               </a>
             )}
           </div>
 
-          {/* Rodapé com botões de ação */}
-          {isPending && (
-            <div className="px-8 py-5 bg-white border-t border-gray-100 sticky bottom-0">
-              <div className="flex gap-3">
+          {/* Detalhes */}
+          <div className="w-full md:w-1/2 p-6 flex flex-col justify-between">
+            <div className="space-y-5">
+
+              {!isPending && (
+                <div className={`p-3 border rounded-lg flex items-center gap-3 ${statusColorClass}`}>
+                  <div className="bg-white p-1.5 rounded-full shadow-sm">{statusIcon}</div>
+                  <div>
+                    <p className="text-xs font-bold uppercase tracking-wider mb-0.5">Status Final</p>
+                    <p className="font-semibold text-sm">{isApproved ? 'Documento Aprovado' : 'Documento Recusado'}</p>
+                  </div>
+                </div>
+              )}
+
+              {isRejected && atestado.motivoRecusa && (
+                <div className="bg-red-50 border border-red-100 rounded-lg p-3">
+                  <p className="text-xs font-bold text-red-400 uppercase tracking-wider mb-1">Motivo da Recusa</p>
+                  <p className="text-sm text-red-700">{atestado.motivoRecusa}</p>
+                </div>
+              )}
+
+              <div>
+                <p className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-1">Funcionário</p>
+                <p className="text-lg font-bold text-gray-900">{atestado.user?.name || 'Não Informado'}</p>
+                <p className="text-sm text-gray-500">{atestado.user?.email}</p>
+              </div>
+
+              <hr className="border-gray-100" />
+
+              <div>
+                <p className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">Afastamento</p>
+                <div className="grid grid-cols-3 gap-2">
+                  <div className="bg-gray-50 p-2.5 rounded-md border border-gray-100">
+                    <span className="block text-xs text-gray-500 mb-0.5">Início</span>
+                    <span className="font-semibold text-sm text-gray-900">{formatarData(atestado.startDate)}</span>
+                  </div>
+                  <div className="bg-gray-50 p-2.5 rounded-md border border-gray-100">
+                    <span className="block text-xs text-gray-500 mb-0.5">Fim</span>
+                    <span className="font-semibold text-sm text-gray-900">{formatarData(atestado.endDate)}</span>
+                  </div>
+                  <div className="bg-teal-50 p-2.5 rounded-md border border-teal-100">
+                    <span className="block text-xs text-teal-500 mb-0.5">Dias</span>
+                    <span className="font-semibold text-sm text-teal-700">{calcularDias(atestado.startDate, atestado.endDate)}d</span>
+                  </div>
+                </div>
+                <div className="mt-3 flex flex-wrap gap-x-6 gap-y-3">
+                  <div>
+                    <span className="block text-xs text-gray-500 font-medium mb-0.5">Motivo</span>
+                    <span className="font-semibold text-sm text-gray-900">{formatarMotivo(atestado.motivo)}</span>
+                  </div>
+                  <div>
+                    <span className="block text-xs text-gray-500 font-medium mb-0.5">CRM</span>
+                    <span className="font-semibold text-sm text-gray-900">{atestado.crmNumber}</span>
+                  </div>
+                </div>
+              </div>
+
+              {atestado.observacoes && (
+                <div>
+                  <p className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-1">Observações</p>
+                  <p className="text-sm text-gray-700 bg-yellow-50 p-2.5 rounded border border-yellow-100">{atestado.observacoes}</p>
+                </div>
+              )}
+            </div>
+
+            {isPending && (
+              <div className="mt-8 pt-5 border-t border-gray-100 flex gap-3">
                 <button
                   onClick={handleAprovar}
                   disabled={isProcessing}
-                  className="flex-1 py-3 bg-emerald-500 text-white rounded-xl text-sm font-bold hover:bg-emerald-600 transition disabled:opacity-50"
+                  className="flex-1 py-2.5 bg-emerald-500 text-white rounded-md text-sm font-bold hover:bg-emerald-600 transition disabled:opacity-50"
                 >
                   {isProcessing ? 'Processando...' : '✓ Aprovar Atestado'}
                 </button>
                 <button
                   onClick={() => setShowModalRecusa(true)}
                   disabled={isProcessing}
-                  className="flex-1 py-3 bg-white text-red-500 border border-red-200 rounded-xl text-sm font-bold hover:bg-red-50 hover:border-red-300 transition disabled:opacity-50"
+                  className="flex-1 py-2.5 bg-white text-red-500 border border-red-200 rounded-md text-sm font-bold hover:bg-red-50 transition disabled:opacity-50"
                 >
-                  ✗ Recusar
+                  ✕ Recusar
                 </button>
               </div>
-            </div>
-          )}
+            )}
+          </div>
         </div>
-      </div>
+      </main>
     </div>
   );
 }
