@@ -339,7 +339,7 @@ const cert23 = await prisma.medicalCertificate.create({
         newState: 'APPROVED',
         adminNotes: 'Approved after review',
         ipAddress: '127.0.0.1',
-        certificatedId: cert2.id,
+        certificateId: cert2.id,
         actorId: admin.id,
         },
     });
@@ -351,7 +351,7 @@ const cert23 = await prisma.medicalCertificate.create({
         newState: 'REJECTED',
         adminNotes: 'Invalid document',
         ipAddress: '127.0.0.1',
-        certificatedId: cert3.id,
+        certificateId: cert3.id,
         actorId: admin.id,
         },
     });
