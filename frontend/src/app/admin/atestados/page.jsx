@@ -44,14 +44,17 @@ export default function AdminAtestados() {
   };
 
   const formatarMotivo = (motivo) => {
-    if (!motivo) return 'Motivo não especificado';
-    const mapa = {
-      DOENCA: 'Doença',
-      EXAME: 'Exame médica',
-      ACOMPANHAMENTO: 'Acompanhamento',
-    };
-    return mapa[motivo] || motivo;
+  if (!motivo) return 'Motivo não especificado';
+
+  const mapa = {
+    DOENCA: 'Doença',
+    EXAME: 'Exame médico',
+    ACOMPANHAMENTO: 'Acompanhamento',
   };
+
+  return mapa[motivo] || motivo;
+};
+  
 
   const atestadosFiltrados = atestados.filter(atestado => {
     const passaStatus = filtroAtual === 'TODOS' || atestado.status === filtroAtual;

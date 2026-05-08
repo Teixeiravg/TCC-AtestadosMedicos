@@ -27,7 +27,7 @@ export default function NavBarAdmin() {
         </span>
       </div>
 
-      {/* Centro: Navegação com efeito idêntico ao NavBar convencional */}
+      {/* Centro: Navegação */}
       <nav className="hidden md:flex gap-8 text-sm font-medium text-gray-600">
         <Link
           href="/admin/dashboard"
@@ -35,6 +35,7 @@ export default function NavBarAdmin() {
         >
           Dashboard
         </Link>
+
         <Link
           href="/admin/atestados"
           className={`transition ${pathname === '/admin/atestados' ? 'text-[#00a8ac]' : 'hover:text-[#00a8ac]'}`}
@@ -43,7 +44,7 @@ export default function NavBarAdmin() {
         </Link>
       </nav>
 
-      {/* Lado Direito: Sair / Avatar */}
+      {/* Lado Direito */}
       <div className="flex items-center gap-6">
         <button
           onClick={handleLogout}
@@ -51,15 +52,26 @@ export default function NavBarAdmin() {
         >
           Sair
         </button>
+
         <Link href="/perfil">
           <div className="w-9 h-9 bg-gray-400 rounded-full flex items-center justify-center text-white hover:bg-gray-500 transition-colors">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <svg
+              width="20"
+              height="20"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            >
               <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
               <circle cx="12" cy="7" r="4"></circle>
             </svg>
           </div>
         </Link>
       </div>
+
       <AccessibilityWidget />
     </header>
   );
