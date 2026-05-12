@@ -5,7 +5,7 @@ import api from '@/services/api';
 import NavBarAdmin from '@/components/NavBarAdmin';
 
 import jsPDF from 'jspdf';
-import html2canvas from 'html2canvas';
+import html2canvas from 'html2canvas-pro';
 
 export default function AdminDashboard() {
   const [atestados, setAtestados] = useState([]);
@@ -202,100 +202,107 @@ export default function AdminDashboard() {
 
       <main className="flex-1 w-full px-6 md:px-10 py-10 flex flex-col gap-8">
 
-  {/* cabeçalho com botão */}
-  <div className="flex items-start justify-between">
-    <div>
-      <h1 className="text-3xl font-bold text-gray-900">Visão Geral do Sistema</h1>
-      <p className="text-sm text-gray-500 mt-1">Acompanhe as métricas e o fluxo de atestados da empresa.</p>
-    </div>
-    <button
-      onClick={exportarPDF}
-      disabled={isLoading}
-      className="flex items-center gap-2 bg-[#1a9e9e] text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-[#1a6b6b] transition-colors disabled:opacity-50 cursor-pointer"
-    >
-      ↓ Exportar PDF
-    </button>
-  </div>
-
-  {/* área capturada pelo html2canvas */}
-  <div ref={relatorioRef}>
-    {/* cards de métricas */}
-    <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
-
-          <div className="bg-white border border-gray-200 rounded-xl p-5 shadow-sm flex flex-col justify-between">
-            <span className="text-xs font-semibold text-gray-500 uppercase tracking-wide">Total</span>
-            <span className="text-4xl font-bold text-gray-900 mt-3">{isLoading ? '—' : totalRecebidos}</span>
-            <span className="text-xs text-gray-400 mt-2">Atestados recebidos</span>
+        {/* cabeçalho com botão */}
+        <div className="flex items-start justify-between">
+          <div>
+            <h1 className="text-3xl font-bold text-gray-900">Visão Geral do Sistema</h1>
+            <p className="text-sm text-gray-500 mt-1">Acompanhe as métricas e o fluxo de atestados da empresa.</p>
           </div>
-
-          <div className="bg-white border border-gray-200 rounded-xl p-5 shadow-sm flex flex-col justify-between">
-            <span className="text-xs font-semibold text-gray-500 uppercase tracking-wide">Pendentes</span>
-            <span className="text-4xl font-bold text-yellow-500 mt-3">{isLoading ? '—' : pendentes}</span>
-            <span className="text-xs text-yellow-600/70 mt-2 font-medium">Aguardando análise</span>
-          </div>
-
-          <div className="bg-white border border-gray-200 rounded-xl p-5 shadow-sm flex flex-col justify-between">
-            <span className="text-xs font-semibold text-gray-500 uppercase tracking-wide">Aprovados</span>
-            <span className="text-4xl font-bold text-emerald-500 mt-3">{isLoading ? '—' : aprovados}</span>
-            <span className="text-xs text-emerald-600/70 mt-2 font-medium">Atestados validados</span>
-          </div>
-
-          <div className="bg-white border border-gray-200 rounded-xl p-5 shadow-sm flex flex-col justify-between">
-            <span className="text-xs font-semibold text-gray-500 uppercase tracking-wide">Recusados</span>
-            <span className="text-4xl font-bold text-red-500 mt-3">{isLoading ? '—' : recusados}</span>
-            <span className="text-xs text-red-600/70 mt-2 font-medium">Documentos inválidos</span>
-          </div>
-
-          <div className="bg-white border border-gray-200 rounded-xl p-5 shadow-sm flex flex-col justify-between">
-            <span className="text-xs font-semibold text-gray-500 uppercase tracking-wide">Taxa Aprovação</span>
-            <span className="text-4xl font-bold text-[#00a8ac] mt-3">{isLoading ? '—' : `${taxaAprovacao}%`}</span>
-            <span className="text-xs text-[#00a8ac]/70 mt-2 font-medium">Dos atestados recebidos</span>
-          </div>
-
-          <div className="bg-white border border-gray-200 rounded-xl p-5 shadow-sm flex flex-col justify-between">
-            <span className="text-xs font-semibold text-gray-500 uppercase tracking-wide">Média Afastamento</span>
-            <span className="text-4xl font-bold text-gray-700 mt-3">{isLoading ? '—' : `${mediaDias}d`}</span>
-            <span className="text-xs text-gray-400 mt-2">Por atestado</span>
-          </div>
-
+          <button
+            onClick={exportarPDF}
+            disabled={isLoading}
+            className="flex items-center gap-2 bg-[#1a9e9e] text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-[#1a6b6b] transition-colors disabled:opacity-50 cursor-pointer"
+          >
+            ↓ Exportar PDF
+          </button>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-2">
+        {error && (
+          <div className="bg-red-50 text-red-600 p-4 rounded-md border border-red-100 text-sm">{error}</div>
+        )}
 
-          <div className="bg-white border border-gray-200 rounded-xl p-6 shadow-sm flex flex-col">
-            <div className="mb-4">
-              <h2 className="text-lg font-semibold text-gray-900">Fluxo Mensal</h2>
-              <p className="text-xs text-gray-400 mt-0.5">Atestados por mês com base na data de início do afastamento ({new Date().getFullYear()})</p>
+        {/* área capturada pelo html2canvas */}
+        <div ref={relatorioRef}>
+
+          {/* cards de métricas */}
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
+
+            <div className="bg-white border border-gray-200 rounded-xl p-5 shadow-sm flex flex-col justify-between">
+              <span className="text-xs font-semibold text-gray-500 uppercase tracking-wide">Total</span>
+              <span className="text-4xl font-bold text-gray-900 mt-3">{isLoading ? '—' : totalRecebidos}</span>
+              <span className="text-xs text-gray-400 mt-2">Atestados recebidos</span>
             </div>
-            <div className="relative flex-1 min-h-[260px]">
-              {isLoading ? (
-                <div className="absolute inset-0 flex items-center justify-center text-sm text-gray-400">Carregando...</div>
-              ) : (
-                <canvas ref={barChartRef} />
-              )}
+
+            <div className="bg-white border border-gray-200 rounded-xl p-5 shadow-sm flex flex-col justify-between">
+              <span className="text-xs font-semibold text-gray-500 uppercase tracking-wide">Pendentes</span>
+              <span className="text-4xl font-bold text-yellow-500 mt-3">{isLoading ? '—' : pendentes}</span>
+              <span className="text-xs text-yellow-600/70 mt-2 font-medium">Aguardando análise</span>
             </div>
+
+            <div className="bg-white border border-gray-200 rounded-xl p-5 shadow-sm flex flex-col justify-between">
+              <span className="text-xs font-semibold text-gray-500 uppercase tracking-wide">Aprovados</span>
+              <span className="text-4xl font-bold text-emerald-500 mt-3">{isLoading ? '—' : aprovados}</span>
+              <span className="text-xs text-emerald-600/70 mt-2 font-medium">Atestados validados</span>
+            </div>
+
+            <div className="bg-white border border-gray-200 rounded-xl p-5 shadow-sm flex flex-col justify-between">
+              <span className="text-xs font-semibold text-gray-500 uppercase tracking-wide">Recusados</span>
+              <span className="text-4xl font-bold text-red-500 mt-3">{isLoading ? '—' : recusados}</span>
+              <span className="text-xs text-red-600/70 mt-2 font-medium">Documentos inválidos</span>
+            </div>
+
+            <div className="bg-white border border-gray-200 rounded-xl p-5 shadow-sm flex flex-col justify-between">
+              <span className="text-xs font-semibold text-gray-500 uppercase tracking-wide">Taxa Aprovação</span>
+              <span className="text-4xl font-bold text-[#00a8ac] mt-3">{isLoading ? '—' : `${taxaAprovacao}%`}</span>
+              <span className="text-xs text-[#00a8ac]/70 mt-2 font-medium">Dos atestados recebidos</span>
+            </div>
+
+            <div className="bg-white border border-gray-200 rounded-xl p-5 shadow-sm flex flex-col justify-between">
+              <span className="text-xs font-semibold text-gray-500 uppercase tracking-wide">Média Afastamento</span>
+              <span className="text-4xl font-bold text-gray-700 mt-3">{isLoading ? '—' : `${mediaDias}d`}</span>
+              <span className="text-xs text-gray-400 mt-2">Por atestado</span>
+            </div>
+
           </div>
 
-          <div className="bg-white border border-gray-200 rounded-xl p-6 shadow-sm flex flex-col">
-            <div className="mb-4">
-              <h2 className="text-lg font-semibold text-gray-900">Distribuição por Status</h2>
-              <p className="text-xs text-gray-400 mt-0.5">Proporção de aprovados, pendentes e recusados</p>
+          {/* gráficos */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-6">
+
+            <div className="bg-white border border-gray-200 rounded-xl p-6 shadow-sm flex flex-col">
+              <div className="mb-4">
+                <h2 className="text-lg font-semibold text-gray-900">Fluxo Mensal</h2>
+                <p className="text-xs text-gray-400 mt-0.5">Atestados por mês com base na data de início do afastamento ({new Date().getFullYear()})</p>
+              </div>
+              <div className="relative flex-1 min-h-[260px]">
+                {isLoading ? (
+                  <div className="absolute inset-0 flex items-center justify-center text-sm text-gray-400">Carregando...</div>
+                ) : (
+                  <canvas ref={barChartRef} />
+                )}
+              </div>
             </div>
-            <div className="relative flex-1 min-h-[260px]">
-              {isLoading ? (
-                <div className="absolute inset-0 flex items-center justify-center text-sm text-gray-400">Carregando...</div>
-              ) : totalRecebidos === 0 ? (
-                <div className="absolute inset-0 flex items-center justify-center text-sm text-gray-400">Nenhum dado disponível</div>
-              ) : (
-                <canvas ref={doughnutChartRef} />
-              )}
+
+            <div className="bg-white border border-gray-200 rounded-xl p-6 shadow-sm flex flex-col">
+              <div className="mb-4">
+                <h2 className="text-lg font-semibold text-gray-900">Distribuição por Status</h2>
+                <p className="text-xs text-gray-400 mt-0.5">Proporção de aprovados, pendentes e recusados</p>
+              </div>
+              <div className="relative flex-1 min-h-[260px]">
+                {isLoading ? (
+                  <div className="absolute inset-0 flex items-center justify-center text-sm text-gray-400">Carregando...</div>
+                ) : totalRecebidos === 0 ? (
+                  <div className="absolute inset-0 flex items-center justify-center text-sm text-gray-400">Nenhum dado disponível</div>
+                ) : (
+                  <canvas ref={doughnutChartRef} />
+                )}
+              </div>
             </div>
+
           </div>
 
-        </div>
         </div>
       </main>
-      
+
     </div>
   );
 }
