@@ -118,7 +118,8 @@
 }
 
 @layer base {
-  * {
+  /* Aplica reset apenas em elementos fora do VLibras */
+  *:not([vw]):not([vw-access-button]):not([vw-plugin-wrapper]):not([vw-plugin-wrapper] *):not(.vw-plugin-top-wrapper) {
     @apply border-border outline-ring/50;
   }
   body {
@@ -128,6 +129,7 @@
     @apply font-sans;
   }
 }
+
 /* ALTO CONTRASTE */
 html.high-contrast body {
   background: #000 !important;
@@ -155,21 +157,4 @@ html.high-contrast select {
   background: #000 !important;
   color: #fff !important;
   border: 1px solid #fff !important;
-}
-/* ========================
-   VLIBRAS - Proteção de estilos
-======================== */
-/* VLIBRAS - Remove tentativa anterior */
-[vw] .vp-access-button {
-  display: flex !important;
-  position: fixed !important;
-  left: 20px !important;
-  right: auto !important;
-  bottom: 80px !important;
-  top: auto !important;
-  transform: none !important;
-  z-index: 99999 !important;
-  visibility: visible !important;
-  opacity: 1 !important;
-  pointer-events: all !important;
 }
