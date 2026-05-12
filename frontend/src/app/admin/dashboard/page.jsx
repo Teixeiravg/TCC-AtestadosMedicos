@@ -4,6 +4,9 @@ import { useState, useEffect, useRef } from 'react';
 import api from '@/services/api';
 import NavBarAdmin from '@/components/NavBarAdmin';
 
+import jsPDF from 'jspdf';
+import html2canvas from 'html2canvas';
+
 export default function AdminDashboard() {
   const [atestados, setAtestados] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -13,6 +16,8 @@ export default function AdminDashboard() {
   const doughnutChartRef = useRef(null);
   const barChartInstance = useRef(null);
   const doughnutChartInstance = useRef(null);
+
+  const relatorioRef = useRef(null);
 
   useEffect(() => {
     async function fetchTodosAtestados() {
@@ -34,7 +39,7 @@ export default function AdminDashboard() {
   useEffect(() => {
     if (isLoading || atestados.length === 0) return;
 
-    const meses = ['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'];
+    const meses = ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'];
     const anoAtual = new Date().getFullYear();
 
     // Usa startDate (UTC) para refletir o período real do afastamento
@@ -154,6 +159,24 @@ export default function AdminDashboard() {
     };
   }, [atestados, isLoading]);
 
+
+  async function exportarPDF() {
+    const elemento = relatorioRef.current;
+    if (!elemento) return;
+
+    const canvas = await html2canvas(elemento, {
+      scale: 2,
+      useCORS: true,
+      backgroundColor: '#f9fafb',
+    });
+
+    const imgData = canvas.toDataURL('image/png');
+    const pdf = new jsPDF({ orientation: 'landscape', unit: 'px', format: [canvas.width / 2, canvas.height / 2] });
+
+    pdf.addImage(imgData, 'PNG', 0, 0, canvas.width / 2, canvas.height / 2);
+    pdf.save(`relatorio-atestados-${new Date().getFullYear()}.pdf`);
+  }
+
   const totalRecebidos = atestados.length;
   const pendentes = atestados.filter(a => a.status === 'PENDING').length;
   const aprovados = atestados.filter(a => a.status === 'APPROVED').length;
@@ -165,12 +188,12 @@ export default function AdminDashboard() {
 
   const mediaDias = totalRecebidos > 0
     ? Math.round(
-        atestados.reduce((acc, a) => {
-          const d1 = new Date(a.startDate);
-          const d2 = new Date(a.endDate);
-          return acc + Math.ceil(Math.abs(d2 - d1) / (1000 * 60 * 60 * 24));
-        }, 0) / totalRecebidos
-      )
+      atestados.reduce((acc, a) => {
+        const d1 = new Date(a.startDate);
+        const d2 = new Date(a.endDate);
+        return acc + Math.ceil(Math.abs(d2 - d1) / (1000 * 60 * 60 * 24));
+      }, 0) / totalRecebidos
+    )
     : 0;
 
   return (
@@ -179,16 +202,25 @@ export default function AdminDashboard() {
 
       <main className="flex-1 w-full px-6 md:px-10 py-10 flex flex-col gap-8">
 
-        <div>
-          <h1 className="text-3xl font-bold text-gray-900">Visão Geral do Sistema</h1>
-          <p className="text-sm text-gray-500 mt-1">Acompanhe as métricas e o fluxo de atestados da empresa.</p>
-        </div>
+  {/* cabeçalho com botão */}
+  <div className="flex items-start justify-between">
+    <div>
+      <h1 className="text-3xl font-bold text-gray-900">Visão Geral do Sistema</h1>
+      <p className="text-sm text-gray-500 mt-1">Acompanhe as métricas e o fluxo de atestados da empresa.</p>
+    </div>
+    <button
+      onClick={exportarPDF}
+      disabled={isLoading}
+      className="flex items-center gap-2 bg-[#1a9e9e] text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-[#1a6b6b] transition-colors disabled:opacity-50 cursor-pointer"
+    >
+      ↓ Exportar PDF
+    </button>
+  </div>
 
-        {error && (
-          <div className="bg-red-50 text-red-600 p-4 rounded-md border border-red-100 text-sm">{error}</div>
-        )}
-
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
+  {/* área capturada pelo html2canvas */}
+  <div ref={relatorioRef}>
+    {/* cards de métricas */}
+    <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
 
           <div className="bg-white border border-gray-200 rounded-xl p-5 shadow-sm flex flex-col justify-between">
             <span className="text-xs font-semibold text-gray-500 uppercase tracking-wide">Total</span>
@@ -261,7 +293,9 @@ export default function AdminDashboard() {
           </div>
 
         </div>
+        </div>
       </main>
+      
     </div>
   );
 }
