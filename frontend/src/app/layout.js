@@ -1,4 +1,5 @@
 import { Inter } from "next/font/google";
+import Script from "next/script";
 import "./globals.css";
 
 const inter = Inter({
@@ -19,21 +20,26 @@ export default function RootLayout({ children }) {
       </head>
       <body className={`${inter.variable} antialiased`}>
 
-  <div vw="" className="enabled">
-    <div vw-access-button="" className="active"></div>
-    <div vw-plugin-wrapper="">
-      <div className="vw-plugin-top-wrapper"></div>
-    </div>
-  </div>
-  <script src="https://vlibras.gov.br/app/vlibras-plugin.js" />
-  <script dangerouslySetInnerHTML={{
-    __html: `new window.VLibras.Widget('https://vlibras.gov.br/app');`
-  }} />
+        {/* Estrutura obrigatória do VLibras */}
+        <div vw="" className="enabled">
+          <div vw-access-button="" className="active"></div>
+          <div vw-plugin-wrapper="">
+            <div className="vw-plugin-top-wrapper"></div>
+          </div>
+        </div>
 
-  {children}
-</body>
-      
+        {children}
+
+        {/* Plugin VLibras — carrega após a página estar interativa */}
+        <Script
+          src="https://vlibras.gov.br/app/vlibras-plugin.js"
+          strategy="afterInteractive"
+          onLoad={() => {
+            new window.VLibras.Widget('https://vlibras.gov.br/app');
+          }}
+        />
+
+      </body>
     </html>
   );
-  
 }
