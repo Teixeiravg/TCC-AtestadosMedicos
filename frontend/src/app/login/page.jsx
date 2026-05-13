@@ -47,6 +47,10 @@ function AuthContent() {
         if (formData.password !== formData.confirmPassword) {
             setCadastroError('As senhas não coincidem.'); return;
         }
+          if (formData.password.length < 8) {
+            setCadastroError('A senha deve ter pelo menos 8 caracteres.');
+            return;
+        }
         if (!formData.aceitouTermos) {
             setCadastroError('Você precisa aceitar os termos de proteção de dados.'); return;
         }

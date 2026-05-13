@@ -13,6 +13,9 @@ async function register(req, res) {
         if (!name || !email || !password || !role) {
             return res.status(400).json({ error: 'Todos os campos são obrigatórios' });
         }
+        if(password.length < 8) {
+            return res.status(400).json({ error: 'A senha deve ter pelo menos 8 caracteres' });
+        }
         const user = await createUser(name, email, password, role);
         return res.status(201).json({ id: user.id, name: user.name, email: user.email, role: user.role });
     } catch (error) {
